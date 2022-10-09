@@ -10,6 +10,8 @@ def create_tables():
         division VARCHAR(255),
         levels VARCHAR(255),
         roles VARCHAR(255),
+        created TIMESTAMPTZ,
+        updated TIMESTAMPTZ,        
         PRIMARY KEY (id)
     )
     """,)
@@ -21,7 +23,7 @@ def create_tables():
         params = config() 
 
         # connect to the PostgreSql Server
-        print("Connecting to the PostgreSql Database....")
+        # print("Connecting to the PostgreSql Database....")
         conn = psycopg2.connect(**params)
 
         #Create cursor
@@ -39,4 +41,4 @@ def create_tables():
     finally:
         if conn is not None:
             conn.close()
-            print('Database connection closed')        
+            # print('Database connection closed')        

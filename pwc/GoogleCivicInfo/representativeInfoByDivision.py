@@ -1,7 +1,11 @@
+from asyncio.windows_events import NULL
 import requests
 import json
 from createtable import create_tables
 from dataInsertion import *
+import psycopg2
+from config import config
+from datetime import datetime, timezone
 
 
 
@@ -30,25 +34,48 @@ divisions = data['divisions']
 # print('*'*20+"divisions"+"*"*20)
 # print(divisions)
 
-for office in offices:
-    name = office['name']
-    divisionId =office['divisionId']
-    divison = divisions[divisionId]['name']
-    # print(name,' == ', divison)
-    if len(office['levels']) > 1:
-        levels = ', '.join(office['levels'])
-    else:    
-        levels = office['levels'][0]
-    # print('levels == ',levels) 
+conn = None
+cur = None
+try:
+    # read connection parameters
+    params = config() 
+    # connect to the PostgreSql Server     
+    conn = psycopg2.connect(**params)
+    #Create cursor
+    cur = conn.cursor()
+except (Exception, psycopg2.DatabaseError) as error:
+    print(error)
+        
+if conn is not None:
+    for office in offices:
+        name = office['name']
+        divisionId =office['divisionId']
+        divison = divisions[divisionId]['name']
+        # print(name,' == ', divison)
+        if len(office['levels']) > 1:
+            levels = ', '.join(office['levels'])
+        else:    
+            levels = office['levels'][0]
+        # print('levels == ',levels) 
 
-    if len(office['roles']) > 1:
-        roles = ', '.join(office['roles'])
-    else:    
-        roles = office['roles'][0]
-    # print('roles == ',roles)
-    
-    values = (name,divison,levels,roles) 
-    office_id = data_insert_into_offices(values) 
-    print(office_id)
+        if len(office['roles']) > 1:
+            roles = ', '.join(office['roles'])
+        else:    
+            roles = office['roles'][0]
+        # print('roles == ',roles)
+        x = datetime.timestamp(datetime.now())
+        print(x)
+        print(datetime.now())
+        values = (name,divison,levels,roles,str(datetime.now(timezone.utc)))  
+        office_id = data_insert_into_offices(conn, cur, values) 
+        print(office_id)
+else:
+    print("Database connect is not established!")
 
+if cur is not None:
+    cur.close()
+    print("Cursor closed.")
+if conn is not None:    
+    conn.close() 
+    print("Connection closed.")   
     
