@@ -1,0 +1,614 @@
+{
+	"public_identifier": "joeykrug",
+	"profile_pic_url": "https://s3.us-west-000.backblazeb2.com/proxycurl/person/joeykrug/profile?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=0004d7f56a0400b0000000001%2F20221005%2Fus-west-000%2Fs3%2Faws4_request&X-Amz-Date=20221005T143720Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=9c07854fdcdc34a19a4c5218df8ed081a5936c79a3321d3ed67e0096906a5a83",
+	"background_cover_image_url": "https://s3.us-west-000.backblazeb2.com/proxycurl/person/joeykrug/cover?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=0004d7f56a0400b0000000001%2F20221005%2Fus-west-000%2Fs3%2Faws4_request&X-Amz-Date=20221005T143720Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c9861de805044499287b8279838f6ce8cc6d28dd2d0d389f1f198ef0a9a8fa60",
+	"first_name": "Joey",
+	"last_name": "Krug",
+	"full_name": "Joey Krug",
+	"occupation": "Co-Chief Investment Officer at Pantera Capital",
+	"headline": "Co-Chief Investment Officer at Pantera Capital, Co-Founder @ Eco, Co-Founder @ Augur, and Angellist Syndicate",
+	"summary": "Note: I don't check LinkedIn Messages, if you wanna reach me, email me or DM me on Twitter.\n\nJoey started programming in Applesoft BASIC when in middle school after his dad bought him an Apple \nII GS on eBay. He studied CS in college because he enjoys being able to translate his ideas into code. He started angel investing in 2016 and co-started a top-ranked AngelList Syndicate. Joey is co-CIO at Pantera Capital, one of the largest blockchain-focused investment firms, which he joined in 2017. He is co-founder of the Forecast Foundation, which contributes to the development of Augur (a decentralized oracle and prediction market protocol), and Eco (a simple balance that lets you spend, send, save and make money at the same time). Prior to Pantera, Joey built a sound based Point-of-Sale payment system.\n\nHe is a Thiel Fellow and an Edmund Hillary Fellow. In his free time Joey contributes to Pyethereum and enjoys reading. He's also part of Founders Pledge",
+	"country": "PR",
+	"country_full_name": "Puerto Rico, United States",
+	"city": "San Juan",
+	"state": null,
+	"experiences": [
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 8,
+				"year": 2017
+			},
+			"ends_at": null,
+			"company": "Origin",
+			"company_linkedin_profile_url": "https://www.linkedin.com/company/originprotocol/",
+			"title": "Advisor",
+			"description": "Advising Origin on their decentralized sharing economy platform!",
+			"location": "San Francisco, California",
+			"logo_url": "https://media-exp1.licdn.com/dms/image/C560BAQGa50Evalz2rA/company-logo_400_400/0/1525641949438?e=1669852800&v=beta&t=ays559gqy_g8-7-jleqvj8sGDSTUbBoGrd1lYLvi8Ew"
+		},
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 8,
+				"year": 2016
+			},
+			"ends_at": null,
+			"company": "0x",
+			"company_linkedin_profile_url": "https://www.linkedin.com/company/0x/",
+			"title": "Advisor",
+			"description": "Decentralized Exchange Built on Ethereum, seeded 0x + advisor",
+			"location": "San Francisco, California",
+			"logo_url": "https://media-exp1.licdn.com/dms/image/C560BAQF2Qu6LODsGoA/company-logo_400_400/0/1660690714972?e=1669852800&v=beta&t=rE_LoUlzx_seHzV_f5BYJm2gYnbY7y_pZmAoeu3PpeY"
+		},
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 12,
+				"year": 2014
+			},
+			"ends_at": {
+				"day": 31,
+				"month": 12,
+				"year": 2021
+			},
+			"company": "Forecast Foundation",
+			"company_linkedin_profile_url": null,
+			"title": "Co-Founder",
+			"description": "Core development. Decentralized prediction markets, augur.net, first dapp on ethereum",
+			"location": "San Francisco, California",
+			"logo_url": "https://media-exp1.licdn.com/dms/image/C4D0BAQGmcTg8B10yuA/company-logo_100_100/0/1553110419201?e=1651104000&v=beta&t=uFr7wcTyyiyN_h4Lg2fgaVO58XgTOIc6sWWOzKeXo54"
+		},
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 7,
+				"year": 2016
+			},
+			"ends_at": null,
+			"company": "AngelList Syndicate",
+			"company_linkedin_profile_url": null,
+			"title": "Investor",
+			"description": "Checkout my AngelList syndicate at https://angel.co/joeykrug/syndicate\n\nI back companies with strong moats that I'd love to work on if I had more time: practical, novel things that should exist in the world but simply don't... yet. Especially fintech, biotech + healthcare, crowdsourcing, and software companies. Our first deal was numer.ai, and our next deal is for a protocol for decentralized exchange/trading of tokens on Ethereum.",
+			"location": null,
+			"logo_url": "https://media-exp1.licdn.com/dms/image/C560BAQGbiiPUQf_Qxg/company-logo_400_400/0/1616174616979?e=1667433600&v=beta&t=P-ccJoe4U8aX3l_MPwJx7k7glfCjxEct7EWWcE0kEVo"
+		},
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 6,
+				"year": 2017
+			},
+			"ends_at": null,
+			"company": "Pantera Capital",
+			"company_linkedin_profile_url": "https://www.linkedin.com/company/pantera-capital/",
+			"title": "Co-Chief Investment Officer",
+			"description": "Co-Chief Investment Officer at one of the largest cryptocurrency and blockchain focused asset managers where we manage both venture and hedge funds",
+			"location": "san francisco, california, united states",
+			"logo_url": "https://media-exp1.licdn.com/dms/image/C560BAQGbiiPUQf_Qxg/company-logo_400_400/0/1616174616979?e=1669852800&v=beta&t=RVGljySJB-OnUaDFLlrgpF7d3cQzt0vqM2aiX17iFQg"
+		},
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 6,
+				"year": 2016
+			},
+			"ends_at": null,
+			"company": "Numerai",
+			"company_linkedin_profile_url": "https://www.linkedin.com/company/numerai/",
+			"title": "Technical Advisor",
+			"description": "Helped create NMR (code + paper)\n\nNumerai combines the most accurate and original machine learning models from the world’s best data scientists into a collective artificial intelligence that controls the capital in Numerai’s hedge fund.\n\nAI + Homomorphic Encryption + Prediction Tournaments + Bitcoin Rewards == Better Capital Allocation",
+			"location": "san francisco, california, united states",
+			"logo_url": "https://media-exp1.licdn.com/dms/image/C560BAQE9HW4Bc4NGLA/company-logo_400_400/0/1519901697974?e=1669852800&v=beta&t=q8Fpb8__ZW4VigeZ9djg066GT32epbhUEZC0ls4fboA"
+		},
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 5,
+				"year": 2016
+			},
+			"ends_at": null,
+			"company": "Tlon",
+			"company_linkedin_profile_url": "https://www.linkedin.com/company/tlon/",
+			"title": "Technical Advisor",
+			"description": "Technical advisor - rebuilding the internet for decentralized apps",
+			"location": "San Francisco, California",
+			"logo_url": "https://media-exp1.licdn.com/dms/image/C560BAQG6KcRDuFIptQ/company-logo_400_400/0/1653335861274?e=1669852800&v=beta&t=MaVc47WAgMg6MZDCMRp217AjK93RefkuZvzNwVoY9Xg"
+		},
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 4,
+				"year": 2018
+			},
+			"ends_at": null,
+			"company": "Ether Capital",
+			"company_linkedin_profile_url": "https://www.linkedin.com/company/ether-capital/",
+			"title": "Board Member",
+			"description": "One simple balance that lets you spend, send, save and make money at the same time. Eco puts your money back to work for you.",
+			"location": null,
+			"logo_url": "https://media-exp1.licdn.com/dms/image/C4D0BAQGmcTg8B10yuA/company-logo_400_400/0/1553110419201?e=1669852800&v=beta&t=y7810JwR55GNG5fyBi98I5wmFFbt1UyOCICdgOPhItA"
+		},
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 1,
+				"year": 2018
+			},
+			"ends_at": null,
+			"company": "Ampleforth",
+			"company_linkedin_profile_url": "https://www.linkedin.com/company/ampleforth/",
+			"title": "Advisor",
+			"description": "An adaptive money built on sound economics, helped w/ AMPL currency design",
+			"location": "San Francisco, California",
+			"logo_url": "https://media-exp1.licdn.com/dms/image/C560BAQF5JoPoAf0BTQ/company-logo_400_400/0/1549392371456?e=1669852800&v=beta&t=rstb8k3_8kTbinwGcIZJ-qXobzHLxrXpungvgVDAJok"
+		},
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 1,
+				"year": 2017
+			},
+			"ends_at": null,
+			"company": "Eco",
+			"company_linkedin_profile_url": "https://www.linkedin.com/company/eco-pay/",
+			"title": "Co-Founder",
+			"description": "One simple balance that lets you spend, send, save and make money at the same time. Eco puts your money back to work for you.",
+			"location": null,
+			"logo_url": "https://media-exp1.licdn.com/dms/image/C4E0BAQFIOggkcybTag/company-logo_400_400/0/1627324204965?e=1669852800&v=beta&t=U-JavXwRtRUoErJo3SV-B2YthlVd5VQ13FwDm3BAV2s"
+		}
+	],
+	"education": [
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 1,
+				"year": 2013
+			},
+			"ends_at": {
+				"day": 31,
+				"month": 12,
+				"year": 2014
+			},
+			"field_of_study": "Computer Science",
+			"degree_name": "Computer Science",
+			"school": "Pomona College",
+			"school_linkedin_profile_url": "https://pr.linkedin.com/school/pomona-college/",
+			"description": "Dropout",
+			"logo_url": "https://media-exp1.licdn.com/dms/image/C560BAQEJQkZXd4L_pA/company-logo_400_400/0/1530050614354?e=1669852800&v=beta&t=X7mJViJhhhY5Cz9AaeDTr6SgVJvfzO4DjxT-pKYh_OI"
+		},
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 1,
+				"year": 2009
+			},
+			"ends_at": {
+				"day": 31,
+				"month": 12,
+				"year": 2013
+			},
+			"field_of_study": "4.0",
+			"degree_name": "High School Diploma",
+			"school": "Knoxville High School",
+			"school_linkedin_profile_url": "pomona.edu",
+			"description": "Graduated Valedictorian",
+			"logo_url": null
+		}
+	],
+	"languages": [
+		"English",
+		"Spanish"
+	],
+	"accomplishment_organisations": [
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 1,
+				"year": 2019
+			},
+			"ends_at": null,
+			"org_name": "Founders Pledge",
+			"title": "Pledger",
+			"description": null
+		},
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 11,
+				"year": 2013
+			},
+			"ends_at": null,
+			"org_name": "5C Bitcoin Club",
+			"title": "President",
+			"description": "My friend Christophe and I founded a bitcoin club at the 5C Consortium in Claremont, CA to further knowledge of bitcoin and provide a base for startup growth relating to the amazing opportunities available with a disruptive technology like bitcoin."
+		},
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 8,
+				"year": 2013
+			},
+			"ends_at": null,
+			"org_name": "Pomona College Investment Club",
+			"title": "Market Neutral VP",
+			"description": "Seek market arbitrage opportunities uncovered by fundamental and technical analysis."
+		},
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 8,
+				"year": 2011
+			},
+			"ends_at": {
+				"day": 31,
+				"month": 5,
+				"year": 2013
+			},
+			"org_name": "Political Club",
+			"title": "Co-founder",
+			"description": "Co-founded a political club with a friend as we realized a lot of people at our school were interested in talking about national politics but there was no current forum to do so, so we created our own club and met weekly in the mornings to discuss political hot-topics of the week."
+		}
+	],
+	"accomplishment_publications": [
+		{
+			"name": "Sidecoin: a snapshot mechanism for bootstrapping a blockchain",
+			"publisher": "Augur Project",
+			"published_on": {
+				"day": 1,
+				"month": 1,
+				"year": 2014
+			},
+			"description": "Sidecoin is a mechanism that allows a snapshot to be taken of Bitcoin’s blockchain. We compile a list of Bitcoin’s unspent transaction outputs, then use these outputs and their corresponding balances to bootstrap a new blockchain. This allows the preservation of Bitcoin’s economic state in the context of a new blockchain, which may provide new features and technical innovations.",
+			"url": "http://augur.link/sidecoin.pdf"
+		},
+		{
+			"name": "Augur: a decentralized, open-source platform for prediction markets",
+			"publisher": "Augur Project",
+			"published_on": {
+				"day": 1,
+				"month": 1,
+				"year": 2014
+			},
+			"description": "Augur is a trustless, decentralized platform for prediction markets. It is an extension of Bitcoin\nCore’s source code which preserves as much of Bitcoin’s proven code and security as possible. Each\nfeature required for prediction markets is constructed from Bitcoin’s input/output-style transactions.",
+			"url": "http://www.augur.net/static/augur.pdf"
+		},
+		{
+			"name": "Numeraire: A Cryptographic Token for Coordinating Machine Intelligence and Preventing Overfitting",
+			"publisher": "Numerai",
+			"published_on": null,
+			"description": null,
+			"url": "https://numerai.github.io/error-pages/whitepaper.pdf"
+		}
+	],
+	"accomplishment_honors_awards": [
+		{
+			"title": "Thiel Fellowship",
+			"issuer": "Thiel Foundation",
+			"issued_on": {
+				"day": 1,
+				"month": 6,
+				"year": 2016
+			},
+			"description": null
+		},
+		{
+			"title": "Top of Class",
+			"issuer": "KWQC",
+			"issued_on": {
+				"day": 1,
+				"month": 5,
+				"year": 2013
+			},
+			"description": "Award by local TV station for top student at KHS"
+		},
+		{
+			"title": "NHS",
+			"issuer": "-",
+			"issued_on": null,
+			"description": null
+		},
+		{
+			"title": "President's Award for Educational Excellence",
+			"issuer": "-",
+			"issued_on": null,
+			"description": null
+		}
+	],
+	"accomplishment_patents": [],
+	"accomplishment_courses": [],
+	"accomplishment_projects": [
+		{
+			"starts_at": {
+				"day": 1,
+				"month": 9,
+				"year": 2012
+			},
+			"ends_at": {
+				"day": 30,
+				"month": 9,
+				"year": 2012
+			},
+			"title": "Apple I Recreation",
+			"description": "I created an Apple I computer replica of the one built by Steve Wozniak in Steve Job's garage.  Ordered individual parts (transistors, resistors, ics, etc.) online and hand-soldered them together.  A power surge in my school came through and actually burnt one of the traces of the pcb!  But I repaired it with a pencil and finally got it running and hooked up to a monitor and then I wrote games for it in BASIC.  ",
+			"url": null
+		}
+	],
+	"accomplishment_test_scores": [
+		{
+			"name": "ACT",
+			"score": "35",
+			"date_on": {
+				"day": 1,
+				"month": 5,
+				"year": 2012
+			},
+			"description": null
+		}
+	],
+	"volunteer_work": [],
+	"certifications": [],
+	"connections": 500,
+	"people_also_viewed": [
+		{
+			"link": "https://www.linkedin.com/in/andybromberg",
+			"name": "Andy Bromberg",
+			"summary": "CEO at Eco",
+			"location": "Estados Unidos"
+		},
+		{
+			"link": "https://www.linkedin.com/in/will-warren-92aab62b",
+			"name": "Will Warren",
+			"summary": "Co-founder & CEO @ 0x",
+			"location": "San Francisco y alrededores"
+		},
+		{
+			"link": "https://www.linkedin.com/in/lindaxie",
+			"name": "Linda Xie",
+			"summary": "Co-founder of Scalar Capital",
+			"location": "San Francisco, CA"
+		},
+		{
+			"link": "https://www.linkedin.com/in/franklinbi",
+			"name": "Franklin Bi",
+			"summary": "Investor & Director of Portfolio Development at Pantera Capital | OnDeck Fellow",
+			"location": "San Francisco, CA"
+		},
+		{
+			"link": "https://www.linkedin.com/in/anthonypompliano",
+			"name": "Anthony \"Pomp\" Pompliano",
+			"summary": "Investor at Pomp Investments",
+			"location": "Nueva York, NY"
+		},
+		{
+			"link": "https://www.linkedin.com/in/abandeali1",
+			"name": "Amir Bandeali",
+			"summary": "Co-CEO at 0x Labs",
+			"location": "San Francisco y alrededores"
+		},
+		{
+			"link": "https://www.linkedin.com/in/fredehrsam",
+			"name": "Fred Ehrsam",
+			"summary": "Paradigm",
+			"location": "San Francisco y alrededores"
+		},
+		{
+			"link": "https://www.linkedin.com/in/roman-ugarte-743aa7129",
+			"name": "Roman Ugarte",
+			"summary": "Analyst @ Pantera | AM/Ec | Harvard ‘24",
+			"location": "Cambridge, MA"
+		},
+		{
+			"link": "https://www.linkedin.com/in/kmhuang",
+			"name": "Matt Huang",
+			"summary": "Co-Founder at Paradigm",
+			"location": "San Francisco y alrededores"
+		},
+		{
+			"link": "https://www.linkedin.com/in/erik-lowe-9a27a7101",
+			"name": "Erik Lowe",
+			"summary": "Head Of Content at Pantera Capital",
+			"location": "Nueva York, NY"
+		},
+		{
+			"link": "https://www.linkedin.com/in/charlie-noyes-44a576121",
+			"name": "Charlie Noyes",
+			"summary": "Partner at Paradigm",
+			"location": "San Francisco, CA"
+		},
+		{
+			"link": "https://pr.linkedin.com/in/damian-owca",
+			"name": "Damian Owca",
+			"summary": "Pantera Capital",
+			"location": "San Juan"
+		},
+		{
+			"link": "https://www.linkedin.com/in/sukiyang",
+			"name": "Suki Yang",
+			"summary": "Crypto Investor",
+			"location": "San Francisco y alrededores"
+		},
+		{
+			"link": "https://www.linkedin.com/in/mia-casetta-58478a11a",
+			"name": "Mia Casetta",
+			"summary": "Finance Associate at Pantera Capital",
+			"location": "Moraga, CA"
+		},
+		{
+			"link": "https://www.linkedin.com/in/mary-blackburn-mba-163109101",
+			"name": "Mary Blackburn, MBA",
+			"summary": "Associate at Pantera Capital",
+			"location": "San Francisco y alrededores"
+		},
+		{
+			"link": "https://www.linkedin.com/in/carolyn-philip",
+			"name": "Carolyn Philip",
+			"summary": "Business Operations at Eco",
+			"location": "Nueva York, NY"
+		},
+		{
+			"link": "https://www.linkedin.com/in/dmorehead",
+			"name": "Dan Morehead",
+			"summary": "Chief Executive Officer, Pantera Capital",
+			"location": "Estados Unidos"
+		},
+		{
+			"link": "https://www.linkedin.com/in/veradittakit",
+			"name": "Paul Veradittakit",
+			"summary": "Investor at Pantera Capital—Solving Problems with a Value-Add Perspective [ODA5]",
+			"location": "San Francisco, CA"
+		},
+		{
+			"link": "https://www.linkedin.com/in/akelani",
+			"name": "Anthony Kelani",
+			"summary": "CEO and Co-founder at DNABLOCK",
+			"location": "Los Ángeles, CA"
+		},
+		{
+			"link": "https://www.linkedin.com/in/simon-holland-00710b13",
+			"name": "Simon Holland",
+			"summary": "Startup Founder",
+			"location": "Nueva York, NY"
+		},
+		{
+			"link": "https://www.linkedin.com/in/amyspurling",
+			"name": "Amy Spurling",
+			"summary": "Founder & CEO @ Compt",
+			"location": "Boston, MA"
+		},
+		{
+			"link": "https://www.linkedin.com/in/ryantakesoff",
+			"name": "Ryan Breslow",
+			"summary": "Fearlessly building",
+			"location": "Miami, FL"
+		},
+		{
+			"link": "https://www.linkedin.com/in/matt-gorham-cfa-036bb84",
+			"name": "Matt Gorham, CFA",
+			"summary": "Chief Operating Officer",
+			"location": "San Francisco y alrededores"
+		},
+		{
+			"link": "https://www.linkedin.com/in/nsmcguire",
+			"name": "Nicole McGuire",
+			"summary": "Pantera Capital",
+			"location": "Estados Unidos"
+		},
+		{
+			"link": "https://www.linkedin.com/in/larsbuttler",
+			"name": "Lars Buttler, PhD",
+			"summary": "Investor",
+			"location": "Nueva York, NY"
+		},
+		{
+			"link": "https://www.linkedin.com/in/brianhenningkerr",
+			"name": "Brian K.",
+			"summary": "Entrepreneur.",
+			"location": "Austin, TX"
+		},
+		{
+			"link": "https://www.linkedin.com/in/mcateer",
+			"name": "Seamus McAteer",
+			"summary": "Entrepreneur & Operator",
+			"location": "San Francisco, CA"
+		},
+		{
+			"link": "https://www.linkedin.com/in/rtsaxe",
+			"name": "Ryne Saxe",
+			"summary": "Co-founder & COO at Eco",
+			"location": null
+		},
+		{
+			"link": "https://www.linkedin.com/in/ericfeldman44",
+			"name": "Eric Feldman",
+			"summary": "Co-Founder at Bolt",
+			"location": null
+		},
+		{
+			"link": "https://www.linkedin.com/in/tomhschmidt",
+			"name": "Tom Schmidt",
+			"summary": "Investing at Dragonfly Capital",
+			"location": null
+		},
+		{
+			"link": "https://www.linkedin.com/in/briancpennington",
+			"name": "Brian Pennington, PhD, FRM",
+			"summary": "Quant Researcher at Pantera Capital",
+			"location": null
+		},
+		{
+			"link": "https://www.linkedin.com/in/richardcraib",
+			"name": "Richard Craib",
+			"summary": "hedge fund manager at Numerai",
+			"location": null
+		},
+		{
+			"link": "https://www.linkedin.com/in/kylesamani",
+			"name": "Kyle Samani",
+			"summary": "Managing Partner, Multicoin Capital. I am @kylesamani on Twitter, Telegram, and WeChat",
+			"location": null
+		},
+		{
+			"link": "https://www.linkedin.com/in/drew-patel",
+			"name": "Drew Patel",
+			"summary": "Co-Founder at Risk Harbor",
+			"location": null
+		},
+		{
+			"link": "https://www.linkedin.com/in/ryan-davis-6922422",
+			"name": "Ryan Davis",
+			"summary": "Chief Financial Officer at Pantera Capital",
+			"location": null
+		},
+		{
+			"link": "https://www.linkedin.com/in/j-henry-ault-66576565",
+			"name": "J Henry Ault",
+			"summary": "Cofounder and President at Eco",
+			"location": null
+		}
+	],
+	"recommendations": [
+		"Tony Sakich\n\n\n\nJoey is one of the most impressive people I've ever had the pleasure to work with and really gets all aspects of business more than anyone I have ever met. As a developer, Joey is absolutely top notch but his maturity and personality make him an absolute breeze to work with. I've met people with decades of experience that lack the maturity, drive and quality of work that Joey does every single day, there is no person I would recommend higher to anyone else than him and he enhances any team that is lucky enough to have him."
+	],
+	"activities": [],
+	"similarly_named_profiles": [
+		{
+			"name": "Joseph Krug, ACAS",
+			"link": "https://www.linkedin.com/in/josephkrug",
+			"summary": "Actuarial Associate Product Manager at BlueOwl, LLC",
+			"location": "Monterrey, CA"
+		},
+		{
+			"name": "Joseph Krug",
+			"link": "https://www.linkedin.com/in/josephfkrug",
+			"summary": "Commercial Real Estate Agent at Apex Commercial Group, LLC",
+			"location": "Dayton, OH"
+		},
+		{
+			"name": "Joseph Krug",
+			"link": "https://www.linkedin.com/in/joseph-krug-006220133",
+			"summary": "Credit Analyst at Partners Capital Group",
+			"location": "Riverside, CA"
+		},
+		{
+			"name": "Joey Krug",
+			"link": "https://www.linkedin.com/in/joey-krug-0b99079a",
+			"summary": "Owner",
+			"location": "Humboldt, IA"
+		},
+		{
+			"name": "Joseph E. Krug, M.D.",
+			"link": "https://www.linkedin.com/in/joseph-e-krug-m-d-495a8628",
+			"summary": "Emergency Medicine Physician, baseball dork, and all things music",
+			"location": "Indianapolis y alrededores"
+		},
+		{
+			"name": "Joseph Krug",
+			"link": "https://www.linkedin.com/in/joseph-krug-95b69864",
+			"summary": "Physician",
+			"location": "Charlotte, NC"
+		}
+	],
+	"articles": [],
+	"groups": []
+}
