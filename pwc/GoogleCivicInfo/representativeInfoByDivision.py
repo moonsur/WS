@@ -7,11 +7,11 @@ from config import config
 from datetime import datetime, timezone
 
 
-
 # Create Tables if not exists
 create_tables()
 
 key = "AIzaSyDqfPE99DZFTKO2bHaPAswJL7qyoKQQDFE"
+# pre_url = "https://civicinfo.googleapis.com/civicinfo/v2/representatives/ocd-division%2Fcountry%3Aus%2Fstate%3Aak?levels=administrativeArea1&levels=country&key=[YOUR_API_KEY]"
 pre_url = "https://civicinfo.googleapis.com/civicinfo/v2/representatives/ocd-division%2Fcountry%3Aus%2Fstate%3Any?levels=administrativeArea1&key=[YOUR_API_KEY]"
 # pre_url = "https://civicinfo.googleapis.com/civicinfo/v2/representatives/ocd-division%2Fcountry%3Aus%2Fstate%3Any?levels=country&levels=administrativeArea1&key=[YOUR_API_KEY]"
 url = pre_url.replace("[YOUR_API_KEY]",key)
@@ -26,12 +26,6 @@ data = json.loads(response.text)
 offices = data['offices']
 officials = data['officials']
 divisions = data['divisions']
-# print('*'*20+"Offices"+"*"*20)
-# print(offices)
-# print('*'*20+"officials"+"*"*20)
-# print(officials)
-# print('*'*20+"divisions"+"*"*20)
-# print(divisions)
 
 conn = None
 cur = None
@@ -71,6 +65,7 @@ if conn is not None:
                 print('officialind =>',officialind) 
                 official_details = officials[officialind]
                 # print('official_details ==> ',official_details)
+                update_officials(conn,cur, official_details, res[1])
         elif res[0] == 1:
             for officialind in office['officialIndices']:
                 official_details = officials[officialind] 
