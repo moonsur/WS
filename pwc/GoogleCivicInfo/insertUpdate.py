@@ -5,11 +5,9 @@ def data_insert_into_offices(conn,cur,values):
     """ Data insert into the table offices """
     sql = """INSERT INTO offices(name,division,levels,roles,created)
              VALUES(%s,%s,%s,%s,%s) RETURNING id;"""
-
-    # select_sql = f"""SELECT id FROM offices WHERE name='{values[0]}' and division='{values[1]}' and levels='{values[2]}' and roles='{values[3]}'""" 
+    
     select_sql = f"""SELECT id FROM offices WHERE name=%s and division=%s and levels=%s and roles=%s""" 
-    select_values = (values[0],values[1],values[2],values[3])
-            
+    select_values = (values[0],values[1],values[2],values[3])            
     
     office_id = None
     try:
@@ -29,9 +27,7 @@ def data_insert_into_offices(conn,cur,values):
             office_id = cur.fetchone()[0]
             res = (1,office_id)
             # commit the changes to the database
-            conn.commit()
-        # else:
-        #     office_id = id
+            conn.commit()        
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -70,8 +66,6 @@ def insert_into_officials(conn,cur, official_details, office_id):
     values = (office_id, name, party, phones, urls, photoUrl, emails, official_created)
     official_id = None
     try:
-        # id = None 
-
         print("start inserting...")    
         cur.execute(sql, values)
         # get the generated id back
@@ -165,10 +159,8 @@ def insert_into_officials(conn,cur, official_details, office_id):
         return None 
 
 
-def update_officials(conn,cur, official_details, office_id):
-    # select_official_sql = f"""SELECT id FROM officials WHERE office_id='{office_id}' and name='{official_details['name']}' and party='{official_details['party']}'""" 
-    select_official_sql = f"""SELECT id FROM officials WHERE office_id=%s and name=%s and party=%s""" 
-    
+def update_officials(conn,cur, official_details, office_id):     
+    select_official_sql = f"""SELECT id FROM officials WHERE office_id=%s and name=%s and party=%s"""     
     select_official_values = (office_id,official_details['name'],official_details['party'])
     official_id = None  
     try:
@@ -351,8 +343,7 @@ def update_officials(conn,cur, official_details, office_id):
 
                     geocoding_values_update = (official_id, queryString, cellId, fprint, featureType, positionPrecisionMeters, addressUnderstood, date_now)
                     cur.execute(sql_geocoding_insert,  geocoding_values_update)
-                    conn.commit()
-            
+                    conn.commit()            
                 
 
     except (Exception, psycopg2.DatabaseError) as error:

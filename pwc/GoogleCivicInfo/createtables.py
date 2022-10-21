@@ -80,8 +80,7 @@ def create_tables():
         # read connection parameters
         params = config() 
 
-        # connect to the PostgreSql Server
-        # print("Connecting to the PostgreSql Database....")
+        # connect to the PostgreSql Server        
         conn = psycopg2.connect(**params)
 
         #Create cursor
@@ -99,4 +98,4 @@ def create_tables():
     finally:
         if conn is not None:
             conn.close()
-            # print('Database connection closed')        
+                   

@@ -14,16 +14,13 @@ http_urls_file_path = http_urls_file_dir + '\\http-for-states.txt'
 create_tables()
 
 key = "AIzaSyDqfPE99DZFTKO2bHaPAswJL7qyoKQQDFE"
-# pre_url = "https://civicinfo.googleapis.com/civicinfo/v2/representatives/ocd-division%2Fcountry%3Aus%2Fstate%3Aak?levels=administrativeArea1&levels=country&key=[YOUR_API_KEY]"
-# pre_url = "https://civicinfo.googleapis.com/civicinfo/v2/representatives/ocd-division%2Fcountry%3Aus%2Fstate%3Any?levels=administrativeArea1&key=[YOUR_API_KEY]"
-# pre_url = "https://civicinfo.googleapis.com/civicinfo/v2/representatives/ocd-division%2Fcountry%3Aus%2Fstate%3Any?levels=country&levels=administrativeArea1&key=[YOUR_API_KEY]"
+
 with open(http_urls_file_path, 'r') as f:
     lines = f.readlines()
     for line in lines:
-        pre_url = line.strip()
-        print(line)
+        pre_url = line.strip()        
         url = pre_url.replace("[YOUR_API_KEY]",key)
-        # print(url)
+        print(url)
 
         response = requests.get(url)
         # print(response.text)
@@ -52,27 +49,23 @@ with open(http_urls_file_path, 'r') as f:
                 name = office['name']
                 divisionId =office['divisionId']
                 divison = divisions[divisionId]['name']
-                # print(name,' == ', divison)
+                
                 if len(office['levels']) > 1:
                     levels = ', '.join(office['levels'])
                 else:    
-                    levels = office['levels'][0]
-                # print('levels == ',levels) 
+                    levels = office['levels'][0]                 
 
                 if len(office['roles']) > 1:
                     roles = ', '.join(office['roles'])
                 else:    
-                    roles = office['roles'][0]
-                # print('roles == ',roles)
+                    roles = office['roles'][0]                
             
                 values = (name,divison,levels,roles,str(datetime.now(timezone.utc)))  
                 res = data_insert_into_offices(conn, cur, values) 
                 print(res)
                 if res[0] == 0:
-                    for officialind in office['officialIndices']:
-                        print('officialind =>',officialind) 
-                        official_details = officials[officialind]
-                        # print('official_details ==> ',official_details)
+                    for officialind in office['officialIndices']:                        
+                        official_details = officials[officialind]                        
                         update_officials(conn,cur, official_details, res[1])
                 elif res[0] == 1:
                     for officialind in office['officialIndices']:
