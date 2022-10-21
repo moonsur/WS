@@ -6,19 +6,20 @@ def data_insert_into_offices(conn,cur,values):
     sql = """INSERT INTO offices(name,division,levels,roles,created)
              VALUES(%s,%s,%s,%s,%s) RETURNING id;"""
 
-    select_sql = f"""SELECT id FROM offices WHERE name='{values[0]}' and division='{values[1]}' and levels='{values[2]}' and roles='{values[3]}'""" 
+    # select_sql = f"""SELECT id FROM offices WHERE name='{values[0]}' and division='{values[1]}' and levels='{values[2]}' and roles='{values[3]}'""" 
+    select_sql = f"""SELECT id FROM offices WHERE name=%s and division=%s and levels=%s and roles=%s""" 
+    select_values = (values[0],values[1],values[2],values[3])
             
     
     office_id = None
     try:
         id = None
-        cur.execute(select_sql)
+        cur.execute(select_sql,select_values)
         fetch_val = cur.fetchone()
         if fetch_val is not None:
             id = fetch_val[0] 
             res = (0,id)
-            # update_sql = f"""UPDATE TABLE offices set division='{values[1]} WHERE id='{id}'"""
-            
+                       
         print("id== ",id)
 
         if id is None: 
@@ -165,11 +166,13 @@ def insert_into_officials(conn,cur, official_details, office_id):
 
 
 def update_officials(conn,cur, official_details, office_id):
-    select_official_sql = f"""SELECT id FROM officials WHERE office_id='{office_id}' and name='{official_details['name']}' and party='{official_details['party']}'""" 
+    # select_official_sql = f"""SELECT id FROM officials WHERE office_id='{office_id}' and name='{official_details['name']}' and party='{official_details['party']}'""" 
+    select_official_sql = f"""SELECT id FROM officials WHERE office_id=%s and name=%s and party=%s""" 
     
+    select_official_values = (office_id,official_details['name'],official_details['party'])
     official_id = None  
     try:
-        cur.execute(select_official_sql)
+        cur.execute(select_official_sql,select_official_values)
         fetch_val = cur.fetchone()
         if fetch_val is not None:
             official_id = fetch_val[0] 
