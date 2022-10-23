@@ -17,11 +17,18 @@ options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 
 def scrape_video(video_url):
+    print("scrape_video...")
     driver_video =webdriver.Chrome(service=serv_obj, options=options)
     driver_video.maximize_window()
     driver_video.get(video_url)
     time.sleep(2)
     try:
+        morebtn = driver.find_element(By.XPATH,"//tp-yt-paper-button[@id='expand']")
+        if morebtn:
+            morebtn.click()
+        else:
+            print("more button not found")    
+        time.sleep(3)
         # description_box = driver_video.find_element(By.XPATH, "//ytd-text-inline-expander[@id='description-inline-expander']")
         description_box = WebDriverWait(driver_video, 10).until(EC.presence_of_element_located((By.XPATH, "//ytd-text-inline-expander[@id='description-inline-expander']")))    
         print(description_box.text)
@@ -63,7 +70,7 @@ try:
         video_url = title.get_attribute("href")
         print(title.get_attribute("href"))
         scrape_video(video_url)
-        if cont > 2:
+        if cont > 1:
             break
         cont += 1
         # views = video.find_element(By.XPATH, ".//div[@id='metadata-line']/span[1]")

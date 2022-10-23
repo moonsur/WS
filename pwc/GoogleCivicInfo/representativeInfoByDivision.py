@@ -1,3 +1,4 @@
+import time
 import requests
 import json
 from createtables import create_tables
@@ -17,7 +18,13 @@ key = "AIzaSyDqfPE99DZFTKO2bHaPAswJL7qyoKQQDFE"
 
 with open(http_urls_file_path, 'r') as f:
     lines = f.readlines()
+    cont = 0
     for line in lines:
+        cont += 1
+        print('State no = ',cont)
+        if cont == 35:
+            print('Wait for 10 seconds...')
+            time.sleep(10)
         pre_url = line.strip()        
         url = pre_url.replace("[YOUR_API_KEY]",key)
         print(url)

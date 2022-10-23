@@ -18,10 +18,10 @@ def data_insert_into_offices(conn,cur,values):
             id = fetch_val[0] 
             res = (0,id)
                        
-        print("id== ",id)
+        # print("id== ",id)
 
         if id is None: 
-            print("start inserting...")    
+            # print("start inserting...")    
             cur.execute(sql, values)
             # get the generated id back
             office_id = cur.fetchone()[0]
@@ -66,7 +66,7 @@ def insert_into_officials(conn,cur, official_details, office_id):
     values = (office_id, name, party, phones, urls, photoUrl, emails, official_created)
     official_id = None
     try:
-        print("start inserting...")    
+        # print("start inserting...")    
         cur.execute(sql, values)
         # get the generated id back
         official_id = cur.fetchone()[0]        
@@ -161,7 +161,15 @@ def insert_into_officials(conn,cur, official_details, office_id):
 
 def update_officials(conn,cur, official_details, office_id):     
     select_official_sql = f"""SELECT id FROM officials WHERE office_id=%s and name=%s and party=%s"""     
-    select_official_values = (office_id,official_details['name'],official_details['party'])
+    if 'name' in official_details:
+        offical_name = official_details['name']
+    else:
+         offical_name = ''   
+    if 'party' in official_details:
+        offical_party = official_details['name']
+    else:
+         offical_party = ''   
+    select_official_values = (office_id,offical_name,offical_party)
     official_id = None  
     try:
         cur.execute(select_official_sql,select_official_values)
@@ -193,14 +201,14 @@ def update_officials(conn,cur, official_details, office_id):
         date_now = str(datetime.now(timezone.utc))
 
         if official_id is not None:
-            print("official id is not none.. update")
+            # print("official id is not none.. update")
             official_update_sql = """UPDATE officials set phones=%s,urls=%s,photoUrl=%s,emails=%s,updated=%s WHERE id=%s""" 
             official_update_values = (phones,urls,photoUrl,emails,date_now,official_id)  
             cur.execute(official_update_sql, official_update_values)
             # commit the changes to the database
             conn.commit()
         else:
-            print("official id is  none.. insert")
+            # print("official id is  none.. insert")
             official_insert_sql = """INSERT INTO officials(office_id,name,party,phones,urls,photoUrl,emails,created)
              VALUES(%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
             official_insert_values = (office_id, name, party, phones, urls, photoUrl, emails, date_now)
@@ -240,14 +248,14 @@ def update_officials(conn,cur, official_details, office_id):
                 if fetch_val is not None:
                     address_id = fetch_val[0]
                 if address_id is not None:
-                    print("address id is not none.. update")
+                    # print("address id is not none.. update")
                     address_update_sql = f"""UPDATE address set line1=%s,city=%s,state=%s,zip=%s,updated=%s WHERE id=%s"""                 
                     address_update_values = (line1, city, state, zip_code, date_now,address_id)  
                     cur.execute(address_update_sql, address_update_values)
                     # commit the changes to the database
                     conn.commit()
                 else:   
-                    print("address id is  none.. insert")         
+                    # print("address id is  none.. insert")         
                     sql_insert_address =  """INSERT INTO address(official_id,line1,city,state,zip,created)
                 VALUES(%s,%s,%s,%s,%s,%s);"""
                     address_values = (official_id, line1, city, state, zip_code, date_now)
@@ -276,14 +284,14 @@ def update_officials(conn,cur, official_details, office_id):
                     channel_id = fetch_val[0]
 
                 if channel_id is not None:
-                    print("channel id is not none.. update")
+                    # print("channel id is not none.. update")
                     channel_update_sql = f"""UPDATE channels set channel_id=%s, updated=%s WHERE id=%s"""                 
                     channel_update_values = (channel_id, date_now,channel_id)  
                     cur.execute(channel_update_sql, channel_update_values)
                     # commit the changes to the database
                     conn.commit()
                 else:   
-                    print("channel id is  none.. insert")         
+                    # print("channel id is  none.. insert")         
                     sql_insert_channel =  """INSERT INTO channels(official_id,type,channel_id,created)
              VALUES(%s,%s,%s,%s);"""
 
@@ -330,14 +338,14 @@ def update_officials(conn,cur, official_details, office_id):
                     geocoding_id = fetch_val[0]
 
                 if geocoding_id is not None:
-                    print("geocoding id is not none.. update")
+                    # print("geocoding id is not none.. update")
                     geocoding_update_sql = f"""UPDATE geocodingSummaries set queryString=%s,cellId=%s,fprint=%s,featureType=%s,positionPrecisionMeters=%s,addressUnderstood=%s, updated=%s WHERE id=%s"""                 
                     geocoding_update_values = (queryString, cellId, fprint, featureType, positionPrecisionMeters, addressUnderstood, date_now,geocoding_id)  
                     cur.execute(geocoding_update_sql, geocoding_update_values)
                     # commit the changes to the database
                     conn.commit()
                 else:   
-                    print("geocoding id is  none.. insert")         
+                    # print("geocoding id is  none.. insert")         
                     sql_geocoding_insert =  """INSERT INTO geocodingSummaries(official_id,queryString,cellId,fprint,featureType,positionPrecisionMeters,addressUnderstood,created)
              VALUES(%s,%s,%s,%s,%s,%s,%s,%s);"""
 

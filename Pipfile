@@ -11,6 +11,7 @@ chromedriver-install = "*"
 requests-html = "*"
 scrapy = "*"
 psycopg2 = "*"
+linkedin-api = "~=2.0.0a"
 
 [dev-packages]
 
