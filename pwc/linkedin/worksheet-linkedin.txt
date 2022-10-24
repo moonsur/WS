@@ -1,0 +1,66 @@
+How to call a LinkedIn API
+and get a Linkedin OAuth Access Token
+---
+
+Prerequisites:
+LinkedIn Account
+curl
+
+---
+Client Registration
+
+go to:
+https://www.linkedin.com/developers/apps
+
+click on "create new" or use this direct link:
+https://www.linkedin.com/developers/apps/new
+
+What you need:
+
+redirectURI = https://www.google.com/
+URLENCODE(redirectURI) = https%3A%2F%2Fwww.google.com%2F
+clientId = 78813bjqvitbhg
+clientSecret = mY8fA7WFbFxEyPYI
+
+
+---
+Authorization Endpoint (Browser)
+
+What you need:
+scope = r_liteprofile
+
+https://www.linkedin.com/oauth/v2/authorization?response_type=code&state=987654321&scope=scope&client_id=clientId&redirect_uri=URLENCODE(redirectURI)
+
+https://www.linkedin.com/oauth/v2/authorization?response_type=code&state=987654321&scope=r_liteprofile&client_id=78813bjqvitbhg&redirect_uri=https%3A%2F%2Fwww.google.com%2F
+
+
+What you need from the response:
+code = AQTJu-LUqmQHXz-_yL7tDEtwKHYD3_4PBKdf1KB_psc_SR3j7XwrX38AbKjQ_5dd84UikV1v8ie7fozsr_ghXxxoc503InwiFDWtsTAgW5Z5K0JZHAcKSZCuavKZwDgwr1TZLX5I_JD6QqAn9oWi05KVcb488ejWK69UAB-cGWFVUZI5-z3bqJNC321FzlFN8rwQg31MBtm5xLI5loI
+---
+Token Endpoint:
+
+curl -ik -X POST https://www.linkedin.com/oauth/v2/accessToken ^
+-d grant_type=authorization_code ^
+-d code=AQTJu-LUqmQHXz-_yL7tDEtwKHYD3_4PBKdf1KB_psc_SR3j7XwrX38AbKjQ_5dd84UikV1v8ie7fozsr_ghXxxoc503InwiFDWtsTAgW5Z5K0JZHAcKSZCuavKZwDgwr1TZLX5I_JD6QqAn9oWi05KVcb488ejWK69UAB-cGWFVUZI5-z3bqJNC321FzlFN8rwQg31MBtm5xLI5loI ^
+-d redirect_uri=https%3A%2F%2Fwww.google.com%2F ^
+-d client_id=78813bjqvitbhg ^
+-d client_secret=mY8fA7WFbFxEyPYI
+
+What you need from the response:
+access_token = "AQULtYGVvcxQ1XyHGFDfBTtHuFt8VSnGbul1QuweAVC83xWIY5dszACJKs0oiL-uYm_PmtAdQBOUxdN2cOugUhHB1OE8cjpj3aV_QPbBcz-3FNZQ-PxIyLmYcokhOOEf3gS26aAlmDeRp-z6fnUTF1NMJhzT-q9mbouU9mAfXqVk_3RyKcsq_lBmjp1vmBLwOw2vBBPGK4N6OEe0_jmHh1oCYyVf_G_7Dhk5NBzdk98clLH8TCNzip6JgjFEQCImRpUxFsFDVyzqc4I0maqMQylisLe7eRllWxRlu2wAOnWqJcyeOa8dr8z-7dNpWSIjQchkSg_0RCeGrd2W9-YtPso0qLFqcQ"
+
+---
+Resource Access:
+
+curl https://api.linkedin.com/v2/me -H "Authorization: Bearer access_token"
+
+What you need from the response:
+firstname = 
+
+---------
+
+Documentation
+
+https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow
+We are on API v2
+Upgrade notice from v1 to v2: https://developer.linkedin.com/blog/posts/2018/redirecting-oauth-uas

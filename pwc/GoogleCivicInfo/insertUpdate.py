@@ -166,7 +166,7 @@ def update_officials(conn,cur, official_details, office_id):
     else:
          offical_name = ''   
     if 'party' in official_details:
-        offical_party = official_details['name']
+        offical_party = official_details['party']
     else:
          offical_party = ''   
     select_official_values = (office_id,offical_name,offical_party)

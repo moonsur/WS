@@ -19,6 +19,7 @@ def login(email, password):
 
     r = session.post(LOGIN_URL, data=payload)
     soup = BeautifulSoup(r.text, 'html.parser')
+    # print(soup)
     verify_pin(soup)
 
 
@@ -43,6 +44,8 @@ def verify_pin(soup):
 
 
 if __name__ == '__main__':
-    email = sys.argv[1]
-    password = sys.argv[2]
+    email = 'monsur.domtech@gmail.com'
+    password = 'monsur#20'
+    # email = sys.argv[1]
+    # password = sys.argv[2]
     login(email, password)

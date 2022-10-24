@@ -10,7 +10,9 @@ import os
 
 http_urls_file_dir = os.path.dirname(os.path.abspath(__file__))
 http_urls_file_path = http_urls_file_dir + '\\http-for-states.txt'
-
+# read connection parameters
+params = config() 
+print(params)
 # Create Tables if not exists
 create_tables()
 
@@ -21,7 +23,7 @@ with open(http_urls_file_path, 'r') as f:
     cont = 0
     for line in lines:
         cont += 1
-        print('State no = ',cont)
+        print('State no = ',cont)       
         if cont == 35:
             print('Wait for 10 seconds...')
             time.sleep(10)
@@ -41,9 +43,7 @@ with open(http_urls_file_path, 'r') as f:
 
         conn = None
         cur = None
-        try:
-            # read connection parameters
-            params = config() 
+        try:           
             # connect to the PostgreSql Server     
             conn = psycopg2.connect(**params)
             #Create cursor
