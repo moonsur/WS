@@ -52,7 +52,7 @@ access_token = "AQULtYGVvcxQ1XyHGFDfBTtHuFt8VSnGbul1QuweAVC83xWIY5dszACJKs0oiL-u
 ---
 Resource Access:
 
-curl https://api.linkedin.com/v2/me -H "Authorization: Bearer access_token"
+curl https://api.linkedin.com/v2/me -H "Authorization: Bearer AQULtYGVvcxQ1XyHGFDfBTtHuFt8VSnGbul1QuweAVC83xWIY5dszACJKs0oiL-uYm_PmtAdQBOUxdN2cOugUhHB1OE8cjpj3aV_QPbBcz-3FNZQ-PxIyLmYcokhOOEf3gS26aAlmDeRp-z6fnUTF1NMJhzT-q9mbouU9mAfXqVk_3RyKcsq_lBmjp1vmBLwOw2vBBPGK4N6OEe0_jmHh1oCYyVf_G_7Dhk5NBzdk98clLH8TCNzip6JgjFEQCImRpUxFsFDVyzqc4I0maqMQylisLe7eRllWxRlu2wAOnWqJcyeOa8dr8z-7dNpWSIjQchkSg_0RCeGrd2W9-YtPso0qLFqcQ"
 
 What you need from the response:
 firstname = 
