@@ -55,7 +55,7 @@ if not body_content is None:
                 
             if not elections_by_state is None:
                 all_state = elections_by_state.find_elements(By.TAG_NAME,'a')
-                for state in all_state[0:]:                    
+                for state in all_state[0:1]:                    
                     # print(state.text,' = ', state.get_attribute('href'))
                     all_state_urls.append((state.text.strip(),h2.text.strip(),state.get_attribute('href').strip())) 
                                          
@@ -64,7 +64,7 @@ else:
 
 driver.close()
 
-state_election(all_state_urls)
+state_elections(all_state_urls)
 # for state in all_state_urls:
 #     print(state)
 #     state_election(state[0],state[1],state[2])     
