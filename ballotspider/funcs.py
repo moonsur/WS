@@ -10,6 +10,10 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 # from selenium.webdriver.edge.service import Service
+import scrapy
+from ballotspider.spiders import spider_classes as spc
+from scrapy.crawler import CrawlerProcess
+from scrapy.utils.project import get_project_settings
 
 
 
@@ -29,55 +33,15 @@ options.add_experimental_option('excludeSwitches', ['enable-logging'])
 # driver_by_state = webdriver.Chrome(service=serv_obj, options=options)
 # driver_by_state.maximize_window() 
 
-# driver_election_info = webdriver.Chrome(service=serv_obj, options=options)
-# driver_election_info.maximize_window() 
+driver_election_info = webdriver.Chrome(service=serv_obj, options=options)
+# driver_election_info = webdriver.Edge(service=serv_obj, options=options)
+driver_election_info.maximize_window() 
 
-# driver_candidate_info = webdriver.Chrome(service=serv_obj, options=options)
-# driver_candidate_info.maximize_window() 
+driver_candidate_info = webdriver.Chrome(service=serv_obj, options=options)
+# driver_candidate_info = webdriver.Edge(service=serv_obj, options=options)
+driver_candidate_info.maximize_window() 
 
-def state_election(all_state_urls):
-    driver_by_state = webdriver.Chrome(service=serv_obj, options=options)
-    driver_by_state.maximize_window() 
-    all_us_senate_elections = []
-    all_us_house_elections = []
-    all_congress_special_elections = []
-    congress_special_elections_urls = []
-    for state_info in all_state_urls:
-        state_name = state_info[0]    
-        election_year = state_info[1]    
-        state_url = state_info[2]    
-        driver_by_state.get(state_url)
-        
-        all_elections = driver_by_state.find_elements(By.XPATH, "//table[@class='marqueetable']//a[not(contains(.,'Click here'))]")
-    
-        for election in all_elections:
-            if election.text.strip().lower() == "u.s. senate":                           
-                all_us_senate_elections.append((state_name, election_year, election.get_attribute('href').strip()))
-            elif election.text.strip().lower() == "u.s. house":                           
-                all_us_house_elections.append((state_name, election_year, election.get_attribute('href').strip())) 
-            elif election.text.strip().lower() == "congress special election":
-                if election.get_attribute('href').strip() not in congress_special_elections_urls:
-                    all_congress_special_elections.append((state_name, election_year, election.get_attribute('href').strip()))
-                    congress_special_elections_urls.append(election.get_attribute('href').strip()) 
-
-
-    driver_by_state.close()
-    
-    print("************** U.S. Senate *******************")
-    print(*all_us_senate_elections,sep='\n')
-    print("************** U.S. House *******************")
-    print(*all_us_house_elections,sep='\n')
-    print("************** Congress special election *******************")
-    print(*all_congress_special_elections,sep='\n')
-    # for senate_election in all_us_senate_elections:
-        # print(senate_election)
-    #     us_senate(senate_election[0], senate_election[1], senate_election[2])
-
-    # for house_election in all_us_house_elections:
-    #     print(house_election)
-    #     us_house(house_election[0], house_election[1], house_election[2])
-
-def old_state_election(state_name, election_year, state_url):
+def state_election(state_name, election_year, state_url):
     driver_by_state = webdriver.Chrome(service=serv_obj, options=options)
     # driver_by_state = webdriver.Edge(service=serv_obj, options=options)
     driver_by_state.maximize_window()    
@@ -86,7 +50,6 @@ def old_state_election(state_name, election_year, state_url):
     all_us_senate_elections = []
     all_us_house_elections = []
     all_elections = driver_by_state.find_elements(By.XPATH, "//table[@class='marqueetable']//a[not(contains(.,'Click here'))]")
-    
     for election in all_elections:
         if election.text.strip().lower() == "u.s. senate": 
             # print(election.text.strip().lower(), election.get_attribute('href'))            
@@ -105,9 +68,7 @@ def old_state_election(state_name, election_year, state_url):
         print(house_election)
         us_house(house_election[0], house_election[1], house_election[2])
 
-def us_senate(state_name, election_year, election_url):  
-    driver_election_info = webdriver.Chrome(service=serv_obj, options=options)
-    driver_election_info.maximize_window()  
+def us_senate(state_name, election_year, election_url):    
     driver_election_info.get(election_url)     
     voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']") 
     for votebox in voteboxes:
@@ -143,9 +104,7 @@ def us_senate(state_name, election_year, election_url):
             continue 
 
 
-def us_house(state_name, election_year, election_url):
-    driver_election_info = webdriver.Chrome(service=serv_obj, options=options)
-    driver_election_info.maximize_window()      
+def us_house(state_name, election_year, election_url):    
     driver_election_info.get(election_url)       
     voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")    
     if len(voteboxes) > 0:      
@@ -164,9 +123,9 @@ def us_house(state_name, election_year, election_url):
             if len(voteboxes) > 0:      
                 print('voteboxes lenght for district election = ',len(voteboxes))
                 scrape_voteboxes(state_name, election_year, voteboxes)
-            # if cont > 5:
-            #     break
-            # cont +=1
+            if cont > 1:
+                break
+            cont +=1
         
                    
            
@@ -186,10 +145,15 @@ def scrape_voteboxes(state_name, election_year, voteboxes):
                 print('Election Name = ',election_name)
                 result_table = votebox.find_element(By.XPATH, ".//table[@class='results_table']")
                 result_rows = result_table.find_elements(By.XPATH, ".//tr[contains(@class,'results_row')]")
+                process = CrawlerProcess(get_project_settings())
                 for result_row in result_rows:                    
                     candidate_url = result_row.find_element(By.XPATH, ".//td[@class='votebox-results-cell--text']//a").get_attribute('href').strip()
                     print('Candidate URL = ', candidate_url)
-                    candidate_info(candidate_url,election_name,election_date_object)
+                    # candidate_info(candidate_url,election_name,election_date_object)
+                    # CandidateInformation(candidate_url)
+                    process.crawl(spc.CandidateInformation, candidate_url)
+                    process.start()
+                    break
                     try:
                         votes_percentage = result_row.find_element(By.XPATH, ".//td[@class='votebox-results-cell--number'][1]").text.strip()
                     except:
@@ -208,8 +172,8 @@ def scrape_voteboxes(state_name, election_year, voteboxes):
   
 
 def candidate_info(candidate_url, election_name, election_date):
-    driver_candidate_info = webdriver.Chrome(service=serv_obj, options=options)
-    driver_candidate_info.maximize_window()    
+    # driver_candidate_info = webdriver.Chrome(service=serv_obj, options=options)
+    # driver_candidate_info.maximize_window()    
     driver_candidate_info.get(candidate_url)
    
     info_box = driver_candidate_info.find_element(By.XPATH, "//div[@class='infobox person']")
@@ -273,3 +237,10 @@ def candidate_info(candidate_url, election_name, election_date):
             
 
 
+
+       
+             
+
+      
+     
+        
