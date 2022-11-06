@@ -77,23 +77,24 @@ def state_elections(all_state_urls):
     driver_election_info = webdriver.Chrome(service=serv_obj, options=options)
     driver_election_info.maximize_window() 
 
-    # us_senate(all_us_senate_elections)
-    # us_house(all_us_house_elections)
+    us_senate(all_us_senate_elections)
+    us_house(all_us_house_elections)
     congress_special_election(all_congress_special_elections)
 
 
 
-def us_senate(all_us_senate_elections):     
+def us_senate(all_us_senate_elections):  
+    global driver_candidate_info
+    driver_candidate_info = webdriver.Chrome(service=serv_obj, options=options)
+    driver_candidate_info.maximize_window()   
     for senate_election in all_us_senate_elections:
         state_name = senate_election[0]
         election_year = senate_election[1]
         election_url = senate_election[2]
         driver_election_info.get(election_url)     
-        voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']") 
-
-        global driver_candidate_info
-        driver_candidate_info = webdriver.Chrome(service=serv_obj, options=options)
-        driver_candidate_info.maximize_window()
+        # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")
+        xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
+        voteboxes = driver_election_info.find_elements(By.XPATH, xp)         
 
         scrape_voteboxes(state_name, election_year, voteboxes)
         
@@ -108,15 +109,16 @@ def us_house(all_us_house_elections):
         election_year = house_election[1]
         election_url = house_election[2]
         driver_election_info.get(election_url)       
-        voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")    
+        # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")  
+        xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
+        voteboxes = driver_election_info.find_elements(By.XPATH, xp)  
         if len(voteboxes) > 0:      
-            scrape_voteboxes(state_name, election_year, voteboxes)
-            pass 
+            scrape_voteboxes(state_name, election_year, voteboxes)             
         else:
             district_election_urls = driver_election_info.find_elements(By.XPATH, "//h3[contains(.,'District') and ./span[contains(@id,'District')]]/following-sibling::dl[1]//a")
             lst_district_election_urls = [dis_ele_url.get_attribute('href').strip() for dis_ele_url in district_election_urls]
             print('Number of District = ',len(lst_district_election_urls))
-            cont = 1
+            # cont = 1
             for district_election_url in lst_district_election_urls:
                 driver_election_info.get(district_election_url)
                 xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"
@@ -139,9 +141,11 @@ def congress_special_election(all_congress_special_elections):
         election_url = congress_special_election[2]
         if election_url not in scraped_urls:
             driver_election_info.get(election_url)       
-            voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")    
+            # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")
+            xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
+            voteboxes = driver_election_info.find_elements(By.XPATH, xp)     
             if len(voteboxes) > 0:      
-                # scrape_voteboxes(state_name, election_year, voteboxes) 
+                scrape_voteboxes(state_name, election_year, voteboxes) 
                 scraped_urls.append(congress_special_election)           
             else:
                 xp_se =f"//ul/li/a[contains(@title,'special') and contains(@href,'{election_year}')]"              
@@ -157,7 +161,7 @@ def congress_special_election(all_congress_special_elections):
                         voteboxes = driver_election_info.find_elements(By.XPATH, xp)    
                         if len(voteboxes) > 0:      
                             print('voteboxes lenght for district election = ',len(voteboxes))
-                            # scrape_voteboxes(state_name, election_year, voteboxes)
+                            scrape_voteboxes(state_name, election_year, voteboxes)
                         
                         scraped_urls.append(special_election_url)
 
