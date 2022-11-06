@@ -41,10 +41,13 @@ driver_candidate_info = None
 def state_elections(all_state_urls):
     driver_by_state = webdriver.Chrome(service=serv_obj, options=options)
     driver_by_state.maximize_window() 
+
     all_us_senate_elections = []
     all_us_house_elections = []
     all_congress_special_elections = []
     congress_special_elections_urls = []
+    all_governor_elections = []
+
     for state_info in all_state_urls:
         state_name = state_info[0]    
         election_year = state_info[1]    
@@ -62,31 +65,40 @@ def state_elections(all_state_urls):
                 if election.get_attribute('href').strip() not in congress_special_elections_urls:
                     all_congress_special_elections.append((state_name, election_year, election.get_attribute('href').strip()))
                     congress_special_elections_urls.append(election.get_attribute('href').strip()) 
+            elif election.text.strip().lower() == "governor":                           
+                all_governor_elections.append((state_name, election_year, election.get_attribute('href').strip()))        
 
 
     driver_by_state.close()
     
-    print("************** U.S. Senate *******************")
-    print(*all_us_senate_elections,sep='\n')
-    print("************** U.S. House *******************")
-    print(*all_us_house_elections,sep='\n')
-    print("************** Congress special election *******************")
-    print(*all_congress_special_elections,sep='\n')
+    # print("************** U.S. Senate *******************")
+    # print(*all_us_senate_elections,sep='\n')
+    # print("************** U.S. House *******************")
+    # print(*all_us_house_elections,sep='\n')
+    # print("************** Congress special election *******************")
+    # print(*all_congress_special_elections,sep='\n')
+    print("************** Governor election *******************")
+    print(*all_governor_elections,sep='\n')
 
     global driver_election_info 
     driver_election_info = webdriver.Chrome(service=serv_obj, options=options)
     driver_election_info.maximize_window() 
 
-    us_senate(all_us_senate_elections)
-    us_house(all_us_house_elections)
-    congress_special_election(all_congress_special_elections)
+    global driver_candidate_info
+    driver_candidate_info = webdriver.Chrome(service=serv_obj, options=options)
+    driver_candidate_info.maximize_window() 
+
+    # us_senate(all_us_senate_elections)
+    # us_house(all_us_house_elections)
+    # congress_special_election(all_congress_special_elections)
+    governor(all_governor_elections)
 
 
 
 def us_senate(all_us_senate_elections):  
-    global driver_candidate_info
-    driver_candidate_info = webdriver.Chrome(service=serv_obj, options=options)
-    driver_candidate_info.maximize_window()   
+    # global driver_candidate_info
+    # driver_candidate_info = webdriver.Chrome(service=serv_obj, options=options)
+    # driver_candidate_info.maximize_window()   
     for senate_election in all_us_senate_elections:
         state_name = senate_election[0]
         election_year = senate_election[1]
@@ -168,7 +180,19 @@ def congress_special_election(all_congress_special_elections):
     print("Scraped Urls: ")  
     print(*scraped_urls, sep='\n')              
 
-        
+
+def governor(all_governor_elections):       
+    for governor_election in all_governor_elections:
+        state_name = governor_election[0]
+        election_year = governor_election[1]
+        election_url = governor_election[2]
+        driver_election_info.get(election_url)     
+        # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")
+        xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
+        voteboxes = driver_election_info.find_elements(By.XPATH, xp)         
+
+        scrape_voteboxes(state_name, election_year, voteboxes)
+
 def scrape_voteboxes(state_name, election_year, voteboxes):
     print('Into the scrape voteboxes')
     global all_candidate_urls
@@ -205,12 +229,14 @@ def scrape_voteboxes(state_name, election_year, voteboxes):
                     print('Votes Number = ', votes_number)       
 
             # break
-        except:
-            continue      
+        except Exception as e:
+            print("Someting went wrong in scrape_voteboxes") 
+            print(e)     
 
   
 
 def candidate_info(candidate_url, election_name, election_date):
+    print("%%%%%%%%%%%%%%%%%%%% Inside Candidate Info %%%%%%%%%%%%%%%%")
     # driver_candidate_info = webdriver.Chrome(service=serv_obj, options=options)
     # driver_candidate_info.maximize_window()    
     driver_candidate_info.get(candidate_url)
