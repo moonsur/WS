@@ -2,7 +2,7 @@ import time
 import requests
 # from createtables import create_tables
 # from insertUpdate import *
-import psycopg2
+# import psycopg2
 # from config import config
 from datetime import datetime, timezone
 import os
@@ -47,6 +47,8 @@ def state_elections(all_state_urls):
     all_congress_special_elections = []
     congress_special_elections_urls = []
     all_governor_elections = []
+    all_state_supreme_court_elections = []
+    all_school_board_elections = []
 
     for state_info in all_state_urls:
         state_name = state_info[0]    
@@ -67,6 +69,10 @@ def state_elections(all_state_urls):
                     congress_special_elections_urls.append(election.get_attribute('href').strip()) 
             elif election.text.strip().lower() == "governor":                           
                 all_governor_elections.append((state_name, election_year, election.get_attribute('href').strip()))        
+            elif election.text.strip().lower() == "state supreme court":                           
+                all_state_supreme_court_elections.append((state_name, election_year, election.get_attribute('href').strip()))        
+            elif election.text.strip().lower() == "school boards":                           
+                all_school_board_elections.append((state_name, election_year, election.get_attribute('href').strip()))        
 
 
     driver_by_state.close()
@@ -77,8 +83,10 @@ def state_elections(all_state_urls):
     # print(*all_us_house_elections,sep='\n')
     # print("************** Congress special election *******************")
     # print(*all_congress_special_elections,sep='\n')
-    print("************** Governor election *******************")
-    print(*all_governor_elections,sep='\n')
+    # print("************** Governor election *******************")
+    # print(*all_governor_elections,sep='\n')
+    print("************** School board election *******************")
+    print(*all_school_board_elections,sep='\n')
 
     global driver_election_info 
     driver_election_info = webdriver.Chrome(service=serv_obj, options=options)
@@ -91,7 +99,9 @@ def state_elections(all_state_urls):
     # us_senate(all_us_senate_elections)
     # us_house(all_us_house_elections)
     # congress_special_election(all_congress_special_elections)
-    governor(all_governor_elections)
+    # governor(all_governor_elections)
+    # state_supreme_court(all_state_supreme_court_elections)
+    school_boards(all_school_board_elections)
 
 
 
@@ -193,6 +203,60 @@ def governor(all_governor_elections):
 
         scrape_voteboxes(state_name, election_year, voteboxes)
 
+
+def school_boards(all_school_board_elections):  
+    all_school_board_election_urls = [] 
+    for school_board_election in all_school_board_elections:
+        state_name = school_board_election[0]
+        election_year = school_board_election[1]
+        election_url = school_board_election[2]
+        driver_election_info.get(election_url)
+        school_board_election_link_tags = driver_election_info.find_elements(By.XPATH,"//div[@id='Elections']/div[@class='scrollable-table-container']//tbody//a")
+        for school_board_election_link_tag in school_board_election_link_tags:
+            url = school_board_election_link_tag.get_attribute('href')
+            all_school_board_election_urls.append((state_name, election_year, url))
+            
+    print("School board election urls:")
+    print("^"*50)
+    print(*all_school_board_election_urls, sep='\n')
+    for school_board_election_url in all_school_board_election_urls:
+        state_name_sb = school_board_election_url[0]
+        election_year_sb = school_board_election_url[1]
+        election_url_sb = school_board_election_url[2]
+        driver_election_info.get(election_url_sb)
+
+        # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")  
+        xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_sb}')]]"            
+        voteboxes = driver_election_info.find_elements(By.XPATH, xp)  
+        if len(voteboxes) > 0:      
+            scrape_voteboxes(state_name_sb, election_year_sb, voteboxes)             
+              
+
+def state_supreme_court(all_state_supreme_court_elections):       
+    for state_supreme_court_election in all_state_supreme_court_elections:
+        state_name = state_supreme_court_election[0]
+        election_year = state_supreme_court_election[1]
+        election_url = state_supreme_court_election[2]
+        driver_election_info.get(election_url) 
+       
+        places = driver_election_info.find_elements(By.XPATH, "//h3[contains(.,'Place') or contains(.,'Position')]")
+        print('No of places: ',len(places))
+        if len(places) > 0:
+            for place in places:
+                all_siblings_of_place = place.find_elements(By.XPATH, "./following-sibling::* ")
+                print(f'place name: {place.text}, Length of all sibling: {len(all_siblings_of_place)}')
+                print('place name:',place.text,', Tag name: ',place.tag_name)
+                for sibling_of_place in all_siblings_of_place:
+                    if sibling_of_place.tag_name == 'h2' or sibling_of_place.tag_name == 'h3':
+                        break
+                    elif sibling_of_place.tag_name == 'div' and 'votebox-scroll-container' in sibling_of_place.get_attribute('class'):
+                        print('The votebox parent container') 
+                        xp = f".//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
+                        voteboxes = sibling_of_place.find_elements(By.XPATH, xp) 
+                        print("lenght of voteboxes: ", len(voteboxes))        
+
+                        scrape_voteboxes(state_name, election_year, voteboxes)
+
 def scrape_voteboxes(state_name, election_year, voteboxes):
     print('Into the scrape voteboxes')
     global all_candidate_urls
@@ -209,14 +273,17 @@ def scrape_voteboxes(state_name, election_year, voteboxes):
                 print('Election Name = ',election_name)
                 result_table = votebox.find_element(By.XPATH, ".//table[@class='results_table']")
                 result_rows = result_table.find_elements(By.XPATH, ".//tr[contains(@class,'results_row')]")
-                for result_row in result_rows:                    
-                    candidate_url = result_row.find_element(By.XPATH, ".//td[@class='votebox-results-cell--text']//a").get_attribute('href').strip()
-                    print('Candidate URL = ', candidate_url)
-                    if candidate_url in all_candidate_urls:
-                        print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
-                    else:
-                        candidate_info(candidate_url,election_name,election_date_object)
-                        all_candidate_urls.append(candidate_url)
+                for result_row in result_rows:
+                    try:                    
+                        candidate_url = result_row.find_element(By.XPATH, ".//td[@class='votebox-results-cell--text']//a").get_attribute('href').strip()
+                        print('Candidate URL = ', candidate_url)
+                        if candidate_url in all_candidate_urls:
+                            print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
+                        else:
+                            candidate_info(candidate_url,election_name,election_date_object)
+                            all_candidate_urls.append(candidate_url)
+                    except:
+                        continue        
                     try:
                         votes_percentage = result_row.find_element(By.XPATH, ".//td[@class='votebox-results-cell--number'][1]").text.strip()
                     except:
