@@ -49,6 +49,9 @@ def state_elections(all_state_urls):
     all_governor_elections = []
     all_state_supreme_court_elections = []
     all_school_board_elections = []
+    all_municipal_government_urls = []
+    municipal_government_years = []
+
 
     for state_info in all_state_urls:
         state_name = state_info[0]    
@@ -73,6 +76,10 @@ def state_elections(all_state_urls):
                 all_state_supreme_court_elections.append((state_name, election_year, election.get_attribute('href').strip()))        
             elif election.text.strip().lower() == "school boards":                           
                 all_school_board_elections.append((state_name, election_year, election.get_attribute('href').strip()))        
+            elif election.text.strip().lower() == "municipal government":
+                if election_year not in municipal_government_years:                           
+                    all_municipal_government_urls.append((state_name, election_year, election.get_attribute('href').strip())) 
+                    municipal_government_years.append(election_year)       
 
 
     driver_by_state.close()
@@ -85,8 +92,10 @@ def state_elections(all_state_urls):
     # print(*all_congress_special_elections,sep='\n')
     # print("************** Governor election *******************")
     # print(*all_governor_elections,sep='\n')
-    print("************** School board election *******************")
-    print(*all_school_board_elections,sep='\n')
+    # print("************** School board election *******************")
+    # print(*all_school_board_elections,sep='\n')
+    print("************** Municipal Government election *******************")
+    print(*all_municipal_government_urls,sep='\n')
 
     global driver_election_info 
     driver_election_info = webdriver.Chrome(service=serv_obj, options=options)
@@ -101,7 +110,8 @@ def state_elections(all_state_urls):
     # congress_special_election(all_congress_special_elections)
     # governor(all_governor_elections)
     # state_supreme_court(all_state_supreme_court_elections)
-    school_boards(all_school_board_elections)
+    # school_boards(all_school_board_elections)
+    municipal_government(all_municipal_government_urls)
 
 
 
@@ -229,7 +239,43 @@ def school_boards(all_school_board_elections):
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_sb}')]]"            
         voteboxes = driver_election_info.find_elements(By.XPATH, xp)  
         if len(voteboxes) > 0:      
-            scrape_voteboxes(state_name_sb, election_year_sb, voteboxes)             
+            scrape_voteboxes(state_name_sb, election_year_sb, voteboxes) 
+
+
+def municipal_government(all_municipal_government_urls):  
+    all_municipal_government_election_urls = [] 
+    for municipal_government_url in all_municipal_government_urls:
+        # state_name = municipal_government_url[0]
+        election_year = municipal_government_url[1]
+        election_url = municipal_government_url[2]
+        driver_election_info.get(election_url)
+        all_state_h3 = driver_election_info.find_elements(By.XPATH,"//div[@id='By_state']//h3")
+        for state_h3 in all_state_h3:
+            state_name = state_h3.text
+            try:
+                state_ul = state_h3.find_element(By.XPATH,"./following-sibling::ul")
+                municipal_government_election_urls_by_state = state_ul.find_elements(By.XPATH, ".//a")
+                for municipal_government_election_url in municipal_government_election_urls_by_state:
+                    url = municipal_government_election_url.get_attribute('href')
+                    all_municipal_government_election_urls.append((state_name, election_year, url))
+            except:
+                pass
+     
+            
+    print("Municipal government election urls:")
+    print("$"*50)
+    print(*all_municipal_government_election_urls, sep='\n')
+    for municipal_government_election_url in all_municipal_government_election_urls[0:1]:
+        state_name_mg = municipal_government_election_url[0]
+        election_year_mg = municipal_government_election_url[1]
+        election_url_mg = municipal_government_election_url[2]
+        driver_election_info.get(election_url_mg)
+
+        # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")  
+        xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_mg}')]]"            
+        voteboxes = driver_election_info.find_elements(By.XPATH, xp)  
+        if len(voteboxes) > 0:      
+            scrape_voteboxes(state_name_mg, election_year_mg, voteboxes)             
               
 
 def state_supreme_court(all_state_supreme_court_elections):       
