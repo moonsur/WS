@@ -51,6 +51,7 @@ def state_elections(all_state_urls):
     all_school_board_elections = []
     all_municipal_government_urls = []
     municipal_government_years = []
+    all_state_executive_elections = []
 
 
     for state_info in all_state_urls:
@@ -72,6 +73,8 @@ def state_elections(all_state_urls):
                     congress_special_elections_urls.append(election.get_attribute('href').strip()) 
             elif election.text.strip().lower() == "governor":                           
                 all_governor_elections.append((state_name, election_year, election.get_attribute('href').strip()))        
+            elif election.text.strip().lower() == "other state executive":                           
+                all_state_executive_elections.append((state_name, election_year, election.get_attribute('href').strip()))        
             elif election.text.strip().lower() == "state supreme court":                           
                 all_state_supreme_court_elections.append((state_name, election_year, election.get_attribute('href').strip()))        
             elif election.text.strip().lower() == "school boards":                           
@@ -94,8 +97,10 @@ def state_elections(all_state_urls):
     # print(*all_governor_elections,sep='\n')
     # print("************** School board election *******************")
     # print(*all_school_board_elections,sep='\n')
-    print("************** Municipal Government election *******************")
-    print(*all_municipal_government_urls,sep='\n')
+    # print("************** Municipal Government election *******************")
+    # print(*all_municipal_government_urls,sep='\n')
+    print("************** Other state executive election *******************")
+    print(*all_state_executive_elections,sep='\n')
 
     global driver_election_info 
     driver_election_info = webdriver.Chrome(service=serv_obj, options=options)
@@ -111,7 +116,9 @@ def state_elections(all_state_urls):
     # governor(all_governor_elections)
     # state_supreme_court(all_state_supreme_court_elections)
     # school_boards(all_school_board_elections)
-    municipal_government(all_municipal_government_urls)
+    # municipal_government(all_municipal_government_urls)
+    state_executive(all_state_executive_elections)
+    
 
 
 
@@ -213,6 +220,216 @@ def governor(all_governor_elections):
 
         scrape_voteboxes(state_name, election_year, voteboxes)
 
+def state_executive(all_state_executive_elections):    
+    all_state_executive_election_urls = []       
+    state_executive_election_urls_only = []       
+    for state_executive_election in all_state_executive_elections:
+        state_name = state_executive_election[0]
+        election_year = state_executive_election[1]
+        election_url = state_executive_election[2]
+        driver_election_info.get(election_url)     
+        state_executive_elections = driver_election_info.find_elements(By.XPATH, "//table/following-sibling::p[2]//a[not (text()='Governor')]")
+        for state_executive_election in state_executive_elections:
+            if state_executive_election.get_attribute('href') not in state_executive_election_urls_only:
+                title = state_executive_election.text
+                url = state_executive_election.get_attribute('href')
+                all_state_executive_election_urls.append((state_name, election_year, title, url))
+                state_executive_election_urls_only.append(url)
+
+    print("State executive election urls:")
+    print("^"*50)
+    print(*all_state_executive_election_urls,sep='\n')
+    for state_executive_election_url in all_state_executive_election_urls:
+        print("State executive election url:")
+        print("^"*50)
+        print(state_executive_election_url)
+        state_name_se = state_executive_election_url[0]
+        election_year_se = state_executive_election_url[1]
+        election_title_se = state_executive_election_url[2]
+        election_url_se = state_executive_election_url[3]
+        driver_election_info.get(election_url_se)
+        xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_se}')]]"            
+        voteboxes = driver_election_info.find_elements(By.XPATH, xp)
+        final_voteboxes = []         
+        if len(voteboxes) > 0:
+            for votebox in voteboxes:
+                if election_title_se.lower() in votebox.find_element(By.XPATH, ".//h5[@class='votebox-header-election-type']").text.lower():
+                    final_voteboxes.append(votebox)
+
+            if len(final_voteboxes) > 0:
+                # scrape_voteboxes(state_name, election_year, final_voteboxes)
+                pass
+        else:
+            general_election_date_obj = None
+            primary_election_date_obj = None
+            primary_runoff_election_date_obj = None
+            elections_date = driver_election_info.find_elements(By.XPATH, "//table[@class='infobox']//td/small[./b[contains(.,'Primary') or contains(.,'Primary runoff') or contains(.,'General')]]")
+            if len(elections_date) > 0:
+                for election_date in elections_date:
+                    if 'General:' in election_date.text:
+                        general_election_date_str = str.replace(election_date.text.split(':')[-1],"(canceled)",'').strip()
+                        print('General: ', general_election_date_str) 
+                        general_election_date_obj = datetime.strptime(general_election_date_str, "%B %d, %Y")   
+                    elif 'Primary:' in election_date.text:
+                        primary_election_date_str = str.replace(election_date.text.split(':')[-1],"(canceled)",'').strip()
+                        print('Primary: ', primary_election_date_str)
+                        primary_election_date_obj = datetime.strptime(primary_election_date_str, "%B %d, %Y")     
+                    elif 'Primary runoff:' in election_date.text:
+                        primary_runoff_election_date_str = str.replace(election_date.text.split(':')[-1],"(canceled)",'').strip()
+                        print('Primary runoff: ', primary_runoff_election_date_str)
+                        primary_runoff_election_date_obj = datetime.strptime(primary_runoff_election_date_str, "%B %d, %Y")     
+
+            sub_offices = driver_election_info.find_elements(By.XPATH, "//h2[./span[@id='Candidates_and_election_results']]//following-sibling::h3[./span[contains(@class,'mw-headline') and not (starts-with(@id,'20')) and not (starts-with(@id,'Campaign'))]]")
+            if len(sub_offices) > 0:
+                for sub_office in sub_offices:
+                    election_title = ''
+                    sub_office_name = sub_office.text.strip()
+                    print("Sub Offices : ", sub_office_name)
+                    sub_office_siblings = sub_office.find_elements(By.XPATH, "./following-sibling::*")
+                    flag = 0
+                    sub_election_name = ''                                       
+                    election_date_obj = None
+                 
+                    for sub_office_sibling in sub_office_siblings:                        
+                        # if sub_office_sibling.tag_name == 'h3' or sub_office_sibling.tag_name == 'h2':
+                        if sub_office_sibling.tag_name == 'h2' or sub_office_sibling.tag_name == 'h3' or sub_office_sibling.tag_name == 'h4':
+                            break
+                        elif sub_office_sibling.tag_name == 'p':
+                            if flag == 0:
+                                try:
+                                    sub_election_text = sub_office_sibling.find_element(By.XPATH, "./span[contains(@style,'font-weight: bold')]")
+                                except:
+                                    continue
+                                if election_title_se != "University of Michigan Board of Regents":    
+                                    sub_election_name = str.replace(sub_election_text.text,'candidates', '').strip() + ' for ' + state_name_se +' '+ election_title_se +' '+ sub_office.text.strip()
+                                    election_title = election_title_se
+                                else:
+                                     sub_election_name = str.replace(sub_election_text.text,'candidates', '').strip() + ' for ' + sub_office.text.strip()
+                                     if election_title == '': 
+                                        election_title = sub_office_name
+                                        sub_office_name = ''
+
+                                if 'general' in sub_election_name.lower():
+                                    election_date_obj = general_election_date_obj
+                                elif 'primary runoff' in sub_election_name.lower():
+                                    election_date_obj = primary_runoff_election_date_obj
+                                else:
+                                    election_date_obj = primary_election_date_obj        
+                                # print("Election Name : ",sub_election_name)
+                                flag = 1
+                                #General election for Alabama State Board of Education District 1
+                            elif flag == 1:
+                                if sub_office_sibling.text == '':
+                                    flag = 2
+                                    
+                        elif sub_office_sibling.tag_name == 'ul':
+                            if flag == 2:
+                                candidates_li = sub_office_sibling.find_elements(By.XPATH, ".//li")
+                                candidate_urls = []
+                                incumbents = [] 
+                                for candidate_li in candidates_li:
+                                    if 'incumbent' in candidate_li.text.strip().lower():
+                                        incumbents.append('Yes')
+                                    else:
+                                        incumbents.append('')    
+                                    try:    
+                                        candidate_url = candidate_li.find_element(By.XPATH, "./a").get_attribute('href')
+                                        candidate_urls.append(candidate_url)
+                                    except:
+                                        continue 
+                                
+                                flag = 0 
+                                print("**************** Sub office Elelction Details ***************")    
+                                print('Election Title: ', election_title)
+                                print('Sub Office Name: ', sub_office_name)
+                                print("Election Date: ",election_date_obj) 
+                                print('Election Name: ',sub_election_name)
+                                print('Incumbents: ', incumbents)
+                                print('Candidate Urls: ', candidate_urls)
+                                for i in range(len(candidate_urls)):
+                                    if candidate_urls[i] in all_candidate_urls:
+                                        print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
+                                    else: 
+                                        candidate_info(candidate_urls[i], sub_election_name, election_date_obj, incumbents[i])
+                                        all_candidate_urls.append(candidate_urls[i])
+                            
+                            else:
+                                flag = 0
+                            
+
+                            # print("Tag Text : ", sub_office_sibling.text)
+                        else:
+                            print("Tag name : ", sub_office_sibling.tag_name)
+            else:
+                candidates_and_election_results_siblings = driver_election_info.find_elements(By.XPATH, "//h2[./span[@id='Candidates_and_election_results']]/following-sibling::*")
+                flag = 0
+                election_name = ''                                       
+                election_date_obj = None
+                sub_office_name = ''
+                
+                for candidates_and_election_results_sibling in candidates_and_election_results_siblings: 
+                    if candidates_and_election_results_sibling.tag_name == 'h2' or candidates_and_election_results_sibling.tag_name == 'h3' or candidates_and_election_results_sibling.tag_name == 'h4':
+                        break
+                    elif candidates_and_election_results_sibling.tag_name == 'p':
+                        if flag == 0:
+                            try:
+                                election_text = candidates_and_election_results_sibling.find_element(By.XPATH, "./span[contains(@style,'font-weight: bold')]")
+                            except:
+                                continue
+                              
+                            election_name = str.replace(election_text.text,'candidates', '').strip() + ' for ' + state_name_se +' '+ election_title_se +' '+ candidates_and_election_results_sibling.text.strip()
+                            election_title = election_title_se
+                            
+                            if 'general' in election_name.lower():
+                                election_date_obj = general_election_date_obj
+                            elif 'primary runoff' in election_name.lower():
+                                election_date_obj = primary_runoff_election_date_obj
+                            else:
+                                election_date_obj = primary_election_date_obj        
+                            # print("Election Name : ",sub_election_name)
+                            flag = 1
+                            #General election for Alabama State Board of Education District 1
+                        elif flag == 1:
+                            if candidates_and_election_results_sibling.text == '':
+                                flag = 2
+                                
+                    elif candidates_and_election_results_sibling.tag_name == 'ul':
+                        if flag == 2:
+                            candidates_li = candidates_and_election_results_sibling.find_elements(By.XPATH, ".//li")
+                            candidate_urls = []
+                            incumbents = [] 
+                            for candidate_li in candidates_li:
+                                if 'incumbent' in candidate_li.text.strip().lower():
+                                    incumbents.append('Yes')
+                                else:
+                                    incumbents.append('')    
+                                try:    
+                                    candidate_url = candidate_li.find_element(By.XPATH, "./a").get_attribute('href')
+                                    candidate_urls.append(candidate_url)
+                                except:
+                                    continue 
+                            
+                            flag = 0 
+                            print("**************** Elelction Details ***************")    
+                            print('Election Title: ', election_title)
+                            print('Sub Office Name: ', sub_office_name)
+                            print("Election Date: ",election_date_obj) 
+                            print('Election Name: ',sub_election_name)
+                            print('Incumbents: ', incumbents)
+                            print('Candidate Urls: ', candidate_urls)
+                            for i in range(len(candidate_urls)):
+                                if candidate_urls[i] in all_candidate_urls:
+                                    print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
+                                else: 
+                                    candidate_info(candidate_urls[i], sub_election_name, election_date_obj, incumbents[i])
+                                    all_candidate_urls.append(candidate_urls[i])
+                        
+                        else:
+                            flag = 0
+
+                    else:
+                        print("Tag name : ", candidates_and_election_results_sibling.tag_name)
+
 
 def school_boards(all_school_board_elections):  
     all_school_board_election_urls = [] 
@@ -265,7 +482,7 @@ def municipal_government(all_municipal_government_urls):
     print("Municipal government election urls:")
     print("$"*50)
     print(*all_municipal_government_election_urls, sep='\n')
-    for municipal_government_election_url in all_municipal_government_election_urls[0:1]:
+    for municipal_government_election_url in all_municipal_government_election_urls:
         state_name_mg = municipal_government_election_url[0]
         election_year_mg = municipal_government_election_url[1]
         election_url_mg = municipal_government_election_url[2]
@@ -348,7 +565,7 @@ def scrape_voteboxes(state_name, election_year, voteboxes):
 
   
 
-def candidate_info(candidate_url, election_name, election_date):
+def candidate_info(candidate_url, election_name, election_date, incumbent = ''):
     print("%%%%%%%%%%%%%%%%%%%% Inside Candidate Info %%%%%%%%%%%%%%%%")
     # driver_candidate_info = webdriver.Chrome(service=serv_obj, options=options)
     # driver_candidate_info.maximize_window()    
@@ -362,11 +579,11 @@ def candidate_info(candidate_url, election_name, election_date):
     print('photo url = ', photo_url)
     party = info_box.find_element(By.XPATH, "./div[3]").text
     print("Party = ",party)
-
-    try:
-        incumbent = driver_candidate_info.find_element(By.XPATH,"//p[contains(.,'Incumbent:')]").text.split(':')[-1]
-    except:
-        incumbent = ''
+    if incumbent == '':
+        try:
+            incumbent = driver_candidate_info.find_element(By.XPATH,"//p[contains(.,'Incumbent:')]").text.split(':')[-1]
+        except:
+            incumbent = ''
     print("Incumbent = ",incumbent) 
 
     try:
@@ -383,16 +600,21 @@ def candidate_info(candidate_url, election_name, election_date):
     except:
         current_office = ''  
     print("current_office = ", current_office) 
-    try:
-        education = info_box.find_element(By.XPATH, ".//div[contains(.,'Education')]")        
-        education_infomaions = education.find_elements(By.XPATH, ".//following-sibling::div")
-        for edu_info in education_infomaions:
-            if 'value-only' in edu_info.get_attribute('class'):
-                break
+    
+    educations = info_box.find_elements(By.XPATH, ".//div[contains(.,'Education') and contains(@class,'widget-row value-only')]")
+    if len(educations) > 0:
+        for education in educations:
+            if education.text.strip().lower() == 'education':
+                education_infomaions = education.find_elements(By.XPATH, ".//following-sibling::div")
+                for edu_info in education_infomaions:
+                    if 'value-only' in edu_info.get_attribute('class'):
+                        break
+                    else:
+                        print('Educaion = ', edu_info.text)
             else:
-                print('Educaion = ', edu_info.text)
-    except:
-        print("Failed to find out education information.")  
+                 print('Education information not found!')             
+    else:
+        print('Education information not found!')  
 
     try:
         profession_key = info_box.find_element(By.XPATH, ".//div[(@class='widget-key') and contains(.,'Profession')]")
@@ -412,36 +634,4 @@ def candidate_info(candidate_url, election_name, election_date):
     except:
         print('contact information not found')
  
-            
-
-
-
-##############################
-def old_state_election(state_name, election_year, state_url):
-    driver_by_state = webdriver.Chrome(service=serv_obj, options=options)
-    # driver_by_state = webdriver.Edge(service=serv_obj, options=options)
-    driver_by_state.maximize_window()    
-    driver_by_state.get(state_url)
-    # time.sleep(1)
-    all_us_senate_elections = []
-    all_us_house_elections = []
-    all_elections = driver_by_state.find_elements(By.XPATH, "//table[@class='marqueetable']//a[not(contains(.,'Click here'))]")
-    
-    for election in all_elections:
-        if election.text.strip().lower() == "u.s. senate": 
-            # print(election.text.strip().lower(), election.get_attribute('href'))            
-            all_us_senate_elections.append((state_name, election_year, election.get_attribute('href')))
-        elif election.text.strip().lower() == "u.s. house":
-            # print(election.text.strip().lower(), election.get_attribute('href'))            
-            all_us_house_elections.append((state_name, election_year, election.get_attribute('href'))) 
-
-    driver_by_state.close()
-
-    # for senate_election in all_us_senate_elections:
-        # print(senate_election)
-    #     us_senate(senate_election[0], senate_election[1], senate_election[2])
-
-    for house_election in all_us_house_elections:
-        print(house_election)
-        us_house(house_election[0], house_election[1], house_election[2])
-
+ 
