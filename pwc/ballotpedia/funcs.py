@@ -10,6 +10,10 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 # from selenium.webdriver.edge.service import Service
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.action_chains import ActionChains
 
 
 
@@ -248,6 +252,24 @@ def state_executive(all_state_executive_elections):
         election_title_se = state_executive_election_url[2]
         election_url_se = state_executive_election_url[3]
         driver_election_info.get(election_url_se)
+        try:
+            show = driver_election_info.find_element(By.XPATH,"//div[@class='all-content']//a[@class='ShowThis' and contains(.,'Show more')]")
+            print(show.text)
+            action = ActionChains(driver_election_info) 
+            action.click(on_element = show)
+            action.perform()
+        except:
+            print("Show button not found")    
+       
+        # try:
+        #     show_btn = WebDriverWait(driver_election_info, 2).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='all-content']//a[@class='ShowThis' and contains(.,'Show more')]")))
+        #     show_btn.click()            
+        #     # if len(shows) > 0:
+        #     #     for show in shows:
+        #     #         show.click()
+        # except TimeoutException: 
+        #     print("Show button not found")       
+        
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_se}')]]"            
         voteboxes = driver_election_info.find_elements(By.XPATH, xp)
         final_voteboxes = []         
@@ -257,7 +279,7 @@ def state_executive(all_state_executive_elections):
                     final_voteboxes.append(votebox)
 
             if len(final_voteboxes) > 0:
-                # scrape_voteboxes(state_name, election_year, final_voteboxes)
+                scrape_voteboxes(state_name, election_year, final_voteboxes)
                 pass
         else:
             general_election_date_obj = None
@@ -377,7 +399,7 @@ def state_executive(all_state_executive_elections):
                             except:
                                 continue
                               
-                            election_name = str.replace(election_text.text,'candidates', '').strip() + ' for ' + state_name_se +' '+ election_title_se +' '+ candidates_and_election_results_sibling.text.strip()
+                            election_name = str.replace(election_text.text,'candidates', '').strip() + ' for ' + state_name_se +' '+ election_title_se
                             election_title = election_title_se
                             
                             if 'general' in election_name.lower():
@@ -414,14 +436,14 @@ def state_executive(all_state_executive_elections):
                             print('Election Title: ', election_title)
                             print('Sub Office Name: ', sub_office_name)
                             print("Election Date: ",election_date_obj) 
-                            print('Election Name: ',sub_election_name)
+                            print('Election Name: ',election_name)
                             print('Incumbents: ', incumbents)
                             print('Candidate Urls: ', candidate_urls)
                             for i in range(len(candidate_urls)):
                                 if candidate_urls[i] in all_candidate_urls:
                                     print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
                                 else: 
-                                    candidate_info(candidate_urls[i], sub_election_name, election_date_obj, incumbents[i])
+                                    candidate_info(candidate_urls[i], election_name, election_date_obj, incumbents[i])
                                     all_candidate_urls.append(candidate_urls[i])
                         
                         else:
