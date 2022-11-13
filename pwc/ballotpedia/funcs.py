@@ -41,6 +41,7 @@ options.add_experimental_option('excludeSwitches', ['enable-logging'])
 all_candidate_urls = []
 driver_election_info = None
 driver_candidate_info = None 
+total_urls = 0
 
 def state_elections(all_state_urls):
     driver_by_state = webdriver.Chrome(service=serv_obj, options=options)
@@ -56,13 +57,15 @@ def state_elections(all_state_urls):
     all_municipal_government_urls = []
     municipal_government_years = []
     all_state_executive_elections = []
-
+    all_state_senate_elections = []
+    global total_urls
 
     for state_info in all_state_urls:
         state_name = state_info[0]    
         election_year = state_info[1]    
         state_url = state_info[2]    
         driver_by_state.get(state_url)
+        total_urls += 1
         
         all_elections = driver_by_state.find_elements(By.XPATH, "//table[@class='marqueetable']//a[not(contains(.,'Click here'))]")
     
@@ -79,6 +82,8 @@ def state_elections(all_state_urls):
                 all_governor_elections.append((state_name, election_year, election.get_attribute('href').strip()))        
             elif election.text.strip().lower() == "other state executive":                           
                 all_state_executive_elections.append((state_name, election_year, election.get_attribute('href').strip()))        
+            elif election.text.strip().lower() == "state senate":                           
+                all_state_senate_elections.append((state_name, election_year, election.get_attribute('href').strip()))        
             elif election.text.strip().lower() == "state supreme court":                           
                 all_state_supreme_court_elections.append((state_name, election_year, election.get_attribute('href').strip()))        
             elif election.text.strip().lower() == "school boards":                           
@@ -103,8 +108,10 @@ def state_elections(all_state_urls):
     # print(*all_school_board_elections,sep='\n')
     # print("************** Municipal Government election *******************")
     # print(*all_municipal_government_urls,sep='\n')
-    print("************** Other state executive election *******************")
-    print(*all_state_executive_elections,sep='\n')
+    # print("************** Other state executive election *******************")
+    # print(*all_state_executive_elections,sep='\n')
+    print("************** state senate election *******************")
+    print(*all_state_senate_elections,sep='\n')
 
     global driver_election_info 
     driver_election_info = webdriver.Chrome(service=serv_obj, options=options)
@@ -121,7 +128,10 @@ def state_elections(all_state_urls):
     # state_supreme_court(all_state_supreme_court_elections)
     # school_boards(all_school_board_elections)
     # municipal_government(all_municipal_government_urls)
-    state_executive(all_state_executive_elections)
+    # state_executive(all_state_executive_elections)
+    state_senate(all_state_senate_elections)
+
+    print('Total Urls Scraped = ', total_urls)
     
 
 
@@ -129,12 +139,14 @@ def state_elections(all_state_urls):
 def us_senate(all_us_senate_elections):  
     # global driver_candidate_info
     # driver_candidate_info = webdriver.Chrome(service=serv_obj, options=options)
-    # driver_candidate_info.maximize_window()   
+    # driver_candidate_info.maximize_window()
+    global total_urls   
     for senate_election in all_us_senate_elections:
         state_name = senate_election[0]
         election_year = senate_election[1]
         election_url = senate_election[2]
-        driver_election_info.get(election_url)     
+        driver_election_info.get(election_url) 
+        total_urls += 1    
         # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
         voteboxes = driver_election_info.find_elements(By.XPATH, xp)         
@@ -146,12 +158,14 @@ def us_senate(all_us_senate_elections):
 def us_house(all_us_house_elections):
     # driver_election_info = webdriver.Chrome(service=serv_obj, options=options)
     # driver_election_info.maximize_window() 
+    global total_urls
    
     for house_election in all_us_house_elections:
         state_name = house_election[0]
         election_year = house_election[1]
         election_url = house_election[2]
-        driver_election_info.get(election_url)       
+        driver_election_info.get(election_url)
+        total_urls += 1       
         # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")  
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
         voteboxes = driver_election_info.find_elements(By.XPATH, xp)  
@@ -177,13 +191,15 @@ def us_house(all_us_house_elections):
 def congress_special_election(all_congress_special_elections):
     # driver_election_info = webdriver.Chrome(service=serv_obj, options=options)
     # driver_election_info.maximize_window() 
+    global total_urls
     scraped_urls = []
     for congress_special_election in all_congress_special_elections:
         state_name = congress_special_election[0]
         election_year = congress_special_election[1]
         election_url = congress_special_election[2]
         if election_url not in scraped_urls:
-            driver_election_info.get(election_url)       
+            driver_election_info.get(election_url) 
+            total_urls += 1      
             # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")
             xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
             voteboxes = driver_election_info.find_elements(By.XPATH, xp)     
@@ -199,6 +215,7 @@ def congress_special_election(all_congress_special_elections):
                 for special_election_url in lst_special_election_urls:
                     if special_election_url not in scraped_urls:
                         driver_election_info.get(special_election_url)
+                        total_urls += 1
                         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"
                         print(xp)
                         voteboxes = driver_election_info.find_elements(By.XPATH, xp)    
@@ -212,27 +229,145 @@ def congress_special_election(all_congress_special_elections):
     print(*scraped_urls, sep='\n')              
 
 
-def governor(all_governor_elections):       
+def governor(all_governor_elections): 
+    global total_urls      
     for governor_election in all_governor_elections:
         state_name = governor_election[0]
         election_year = governor_election[1]
         election_url = governor_election[2]
-        driver_election_info.get(election_url)     
+        driver_election_info.get(election_url) 
+        total_urls += 1    
         # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
         voteboxes = driver_election_info.find_elements(By.XPATH, xp)         
 
         scrape_voteboxes(state_name, election_year, voteboxes)
 
-def state_executive(all_state_executive_elections):    
+def state_senate(all_state_senate_elections):           
+    for state_senate_election in all_state_senate_elections:
+        state_name = state_senate_election[0]
+        election_year = state_senate_election[1]
+        election_url = state_senate_election[2]
+        office = 'State Senate'
+
+        scrape_headertabs(state_name, election_year, election_url, office)        
+
+        
+def scrape_headertabs(state_name, election_year, election_url, office):
+    global total_urls
+    global all_candidate_urls
+    driver_election_info.get(election_url)
+    total_urls += 1
+
+    general_election_date_obj = None
+    primary_election_date_obj = None
+    primary_runoff_election_date_obj = None
+
+    election_date_rows = driver_election_info.find_elements(By.XPATH, "//table[@class='infobox']//tr[./td[./b[contains(.,'Primary') or contains(.,'Primary runoff') or contains(.,'General')]]]")
+    
+    if len(election_date_rows) > 0:        
+        for election_date_row in election_date_rows:
+            if 'General' in election_date_row.find_element(By.XPATH, "./td[1]").text:
+                general_election_date_str = election_date_row.find_element(By.XPATH, "./td[2]").text.strip()
+                # print('General: ', general_election_date_str) 
+                general_election_date_obj = datetime.strptime(general_election_date_str, "%B %d, %Y")
+                # print('General Date Obj: ', general_election_date_obj)    
+            elif 'Primary' in election_date_row.find_element(By.XPATH, "./td[1]").text and 'Primary runoff' not in election_date_row.find_element(By.XPATH, "./td[1]").text:
+                primary_election_date_str = election_date_row.find_element(By.XPATH, "./td[2]").text.strip()
+                # print('Primary: ', primary_election_date_str)
+                primary_election_date_obj = datetime.strptime(primary_election_date_str, "%B %d, %Y")
+                # print('Primary Date obj: ', primary_election_date_obj)     
+            elif 'Primary runoff' in election_date_row.find_element(By.XPATH, "./td[1]").text:
+                primary_runoff_election_date_str = election_date_row.find_element(By.XPATH, "./td[2]").text.strip()
+                # print('Primary runoff: ', primary_runoff_election_date_str)
+                primary_runoff_election_date_obj = datetime.strptime(primary_runoff_election_date_str, "%B %d, %Y")
+                # print('Primary runoff date obj: ', primary_runoff_election_date_obj)
+
+#************* General Elections Section *******************
+    general = driver_election_info.find_element(By.XPATH, "//div[@id='General']")
+    general_election_of_sub_offices = general.find_elements(By.XPATH, ".//tbody/tr")[3:]
+    
+    general_election_name_prefix = "General election for " + office + " " + state_name
+      
+    print('*'*50)
+    print("General Election Date: ",general_election_date_obj)
+    for general_election_of_sub_office in general_election_of_sub_offices:
+        tds = general_election_of_sub_office.find_elements(By.XPATH, "./td")
+        sub_office = tds[0].text.strip()
+        general_election_name = general_election_name_prefix + " " + sub_office
+        candidate_urls = []
+        incumbents = [] 
+       
+        for i in range(1,4):
+                try:
+                    for candidate_span in tds[i].find_elements(By.XPATH, ".//span[@class='candidate']"):
+                        candidate_urls.append(candidate_span.find_element(By.XPATH, ".//a[not (./img)]").get_attribute('href')) 
+                        print('Candidate Text', candidate_span.text)
+                        if '(i)' in candidate_span.text:
+                            incumbents.append('Yes')
+                        else:
+                            incumbents.append('')                
+                except:
+                    print("General Election, somthing went wrong into candidate collection on column : ", i)
+
+        print('Election Name : ', general_election_name)        
+        print('Incumbents : ', incumbents)        
+        print('Candidate Urls : ', candidate_urls)
+        for i in range(len(candidate_urls)):
+            if candidate_urls[i] in all_candidate_urls:
+                print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
+            else: 
+                candidate_info(candidate_urls[i], general_election_name, general_election_date_obj, incumbents[i])
+                all_candidate_urls.append(candidate_urls[i])        
+
+# **************** Primary runoff elections Section *********************
+    try:
+        driver_election_info.find_element(By.XPATH, "//div[@id='headertabs']//a[@href='#Primary_runoff']").click()  
+        primary_runoff = driver_election_info.find_element(By.XPATH, "//div[@id='Primary_runoff']") 
+        primary_runoff_election_of_sub_offices = primary_runoff.find_elements(By.XPATH, ".//tbody/tr")[3:]    
+        # general_election_name_prefix = "General election for " + office + " " + state_name
+        print('*'*50)
+        print("Primary Runoff Election Date: ",primary_runoff_election_date_obj)
+        for primary_runoff_election_of_sub_office in primary_runoff_election_of_sub_offices:
+            tds = primary_runoff_election_of_sub_office.find_elements(By.XPATH, "./td")
+            sub_office = tds[0].text.strip()
+            # general_election_name = general_election_name_prefix + " " + sub_office
+            candidate_urls = []
+            incumbents = [] 
+            for i in range(1,3):
+                try:
+                    for candidate_span in tds[i].find_elements(By.XPATH, ".//span[@class='candidate']"):
+                        candidate_urls.append(candidate_span.find_element(By.XPATH, ".//a[not (./img)]").get_attribute('href')) 
+                        print('Candidate Text', candidate_span.text)
+                        if '(i)' in candidate_span.text:
+                            incumbents.append('Yes')
+                        else:
+                            incumbents.append('')                
+                except:
+                    print("Primary runoff Election, somthing went wrong into candidate collection on column : ", i)
+    except:
+        print('Something went wrong inside Primary runoff in = ', election_url)     
+
+    try:
+        driver_election_info.find_element(By.XPATH, "//div[@id='headertabs']//a[@href='#Primary']").click()  
+        primary = driver_election_info.find_element(By.XPATH, "//div[@id='Primary']") 
+        primary_election_name = primary.find_element(By.XPATH, ".//tbody/tr[1]").text 
+        print(primary_election_name)  
+    except:
+        print('Something went wrong inside Primary in = ', election_url)
+
+def state_executive(all_state_executive_elections):
+    global total_urls 
+    global all_candidate_urls   
     all_state_executive_election_urls = []       
     state_executive_election_urls_only = []       
     for state_executive_election in all_state_executive_elections:
         state_name = state_executive_election[0]
         election_year = state_executive_election[1]
         election_url = state_executive_election[2]
-        driver_election_info.get(election_url)     
-        state_executive_elections = driver_election_info.find_elements(By.XPATH, "//table/following-sibling::p[2]//a[not (text()='Governor')]")
+        driver_election_info.get(election_url)
+        total_urls += 1     
+        state_executive_elections = driver_election_info.find_elements(By.XPATH, "//table[@class='infobox']/following-sibling::p[2]//a[not (text()='Governor')]")
         for state_executive_election in state_executive_elections:
             if state_executive_election.get_attribute('href') not in state_executive_election_urls_only:
                 title = state_executive_election.text
@@ -252,23 +387,15 @@ def state_executive(all_state_executive_elections):
         election_title_se = state_executive_election_url[2]
         election_url_se = state_executive_election_url[3]
         driver_election_info.get(election_url_se)
-        try:
-            show = driver_election_info.find_element(By.XPATH,"//div[@class='all-content']//a[@class='ShowThis' and contains(.,'Show more')]")
-            print(show.text)
-            action = ActionChains(driver_election_info) 
-            action.click(on_element = show)
-            action.perform()
-        except:
-            print("Show button not found")    
-       
+        total_urls += 1
         # try:
-        #     show_btn = WebDriverWait(driver_election_info, 2).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='all-content']//a[@class='ShowThis' and contains(.,'Show more')]")))
-        #     show_btn.click()            
-        #     # if len(shows) > 0:
-        #     #     for show in shows:
-        #     #         show.click()
-        # except TimeoutException: 
-        #     print("Show button not found")       
+        #     show = driver_election_info.find_element(By.XPATH,"//div[@class='all-content']//a[@class='ShowThis' and contains(.,'Show more')]")
+        #     print(show.text)
+        #     action = ActionChains(driver_election_info) 
+        #     action.click(on_element = show)
+        #     action.perform()
+        # except:
+        #     pass 
         
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_se}')]]"            
         voteboxes = driver_election_info.find_elements(By.XPATH, xp)
@@ -453,13 +580,15 @@ def state_executive(all_state_executive_elections):
                         print("Tag name : ", candidates_and_election_results_sibling.tag_name)
 
 
-def school_boards(all_school_board_elections):  
+def school_boards(all_school_board_elections):
+    global total_urls  
     all_school_board_election_urls = [] 
     for school_board_election in all_school_board_elections:
         state_name = school_board_election[0]
         election_year = school_board_election[1]
         election_url = school_board_election[2]
         driver_election_info.get(election_url)
+        total_urls += 1
         school_board_election_link_tags = driver_election_info.find_elements(By.XPATH,"//div[@id='Elections']/div[@class='scrollable-table-container']//tbody//a")
         for school_board_election_link_tag in school_board_election_link_tags:
             url = school_board_election_link_tag.get_attribute('href')
@@ -473,6 +602,7 @@ def school_boards(all_school_board_elections):
         election_year_sb = school_board_election_url[1]
         election_url_sb = school_board_election_url[2]
         driver_election_info.get(election_url_sb)
+        total_urls += 1
 
         # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")  
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_sb}')]]"            
@@ -481,13 +611,16 @@ def school_boards(all_school_board_elections):
             scrape_voteboxes(state_name_sb, election_year_sb, voteboxes) 
 
 
-def municipal_government(all_municipal_government_urls):  
+def municipal_government(all_municipal_government_urls): 
+    global total_urls
+
     all_municipal_government_election_urls = [] 
     for municipal_government_url in all_municipal_government_urls:
         # state_name = municipal_government_url[0]
         election_year = municipal_government_url[1]
         election_url = municipal_government_url[2]
         driver_election_info.get(election_url)
+        total_urls += 1
         all_state_h3 = driver_election_info.find_elements(By.XPATH,"//div[@id='By_state']//h3")
         for state_h3 in all_state_h3:
             state_name = state_h3.text
@@ -509,6 +642,7 @@ def municipal_government(all_municipal_government_urls):
         election_year_mg = municipal_government_election_url[1]
         election_url_mg = municipal_government_election_url[2]
         driver_election_info.get(election_url_mg)
+        total_urls += 1
 
         # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")  
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_mg}')]]"            
@@ -516,7 +650,7 @@ def municipal_government(all_municipal_government_urls):
         if len(voteboxes) > 0:      
             scrape_voteboxes(state_name_mg, election_year_mg, voteboxes)             
               
-
+# Not completed, will do later
 def state_supreme_court(all_state_supreme_court_elections):       
     for state_supreme_court_election in all_state_supreme_court_elections:
         state_name = state_supreme_court_election[0]
@@ -588,10 +722,12 @@ def scrape_voteboxes(state_name, election_year, voteboxes):
   
 
 def candidate_info(candidate_url, election_name, election_date, incumbent = ''):
+    global total_urls
     print("%%%%%%%%%%%%%%%%%%%% Inside Candidate Info %%%%%%%%%%%%%%%%")
     # driver_candidate_info = webdriver.Chrome(service=serv_obj, options=options)
     # driver_candidate_info.maximize_window()    
     driver_candidate_info.get(candidate_url)
+    total_urls += 1
    
     info_box = driver_candidate_info.find_element(By.XPATH, "//div[@class='infobox person']")
     print("*"*70)
