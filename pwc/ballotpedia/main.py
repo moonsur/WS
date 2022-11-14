@@ -41,7 +41,7 @@ body_content = driver.find_element(By.XPATH,"//div[@class='mw-parser-output']")
 if not body_content is None:
     print("body_content found")
     all_h2 = body_content.find_elements(By.TAG_NAME,'h2')
-    
+
     for h2 in all_h2:
         if h2.text.isnumeric() and int(h2.text) > 2021:
             print(h2.text)
@@ -55,7 +55,7 @@ if not body_content is None:
                 
             if not elections_by_state is None:
                 all_state = elections_by_state.find_elements(By.TAG_NAME,'a')
-                for state in all_state[0:1]:                    
+                for state in all_state[0:]:                    
                     # print(state.text,' = ', state.get_attribute('href'))
                     all_state_urls.append((state.text.strip(),h2.text.strip(),state.get_attribute('href').strip())) 
                                          
