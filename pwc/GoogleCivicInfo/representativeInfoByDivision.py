@@ -32,8 +32,8 @@ with open(http_urls_file_path, 'r') as f:
         print(url)
 
         response = requests.get(url)
-        # print(response.text)
-
+        print(response.text)
+        # break
         data = json.loads(response.text)
         # print(data)
 

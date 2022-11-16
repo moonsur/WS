@@ -271,9 +271,9 @@ def update_officials(conn,cur, official_details, office_id):
                 else:
                     channel_type = '' 
                 if 'id' in channel:       
-                    channel_id = channel['id']
+                    ch_id = channel['id']
                 else:
-                     channel_id = ''   
+                     ch_id = ''   
                 date_now = str(datetime.now(timezone.utc)) 
                 
                 channel_id = None
@@ -286,7 +286,7 @@ def update_officials(conn,cur, official_details, office_id):
                 if channel_id is not None:
                     # print("channel id is not none.. update")
                     channel_update_sql = f"""UPDATE channels set channel_id=%s, updated=%s WHERE id=%s"""                 
-                    channel_update_values = (channel_id, date_now,channel_id)  
+                    channel_update_values = (ch_id, date_now,channel_id)  
                     cur.execute(channel_update_sql, channel_update_values)
                     # commit the changes to the database
                     conn.commit()

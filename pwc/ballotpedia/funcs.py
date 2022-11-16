@@ -115,8 +115,8 @@ def state_elections(all_state_urls):
     # print(*all_state_executive_elections,sep='\n')
     # print("************** state senate election *******************")
     # print(*all_state_senate_elections,sep='\n')
-    print("************** state house election *******************")
-    print(*all_state_house_elections,sep='\n')
+    # print("************** state house election *******************")
+    # print(*all_state_house_elections,sep='\n')
 
     global driver_election_info 
     driver_election_info = webdriver.Chrome(service=serv_obj, options=options)
@@ -127,14 +127,14 @@ def state_elections(all_state_urls):
     driver_candidate_info.maximize_window() 
 
     # us_senate(all_us_senate_elections)
-    # us_house(all_us_house_elections)
+    us_house(all_us_house_elections)
     # congress_special_election(all_congress_special_elections)
     # governor(all_governor_elections)
     # state_supreme_court(all_state_supreme_court_elections)
     # school_boards(all_school_board_elections)
     # municipal_government(all_municipal_government_urls)
     # state_executive(all_state_executive_elections)
-    state_senate(all_state_senate_elections)
+    # state_senate(all_state_senate_elections)
     # state_house(all_state_house_elections)
 
     print('Total Urls Scraped = ', total_urls)
