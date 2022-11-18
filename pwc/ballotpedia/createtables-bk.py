@@ -32,22 +32,36 @@ def create_tables():
         updated TIMESTAMPTZ,
         CONSTRAINT fk_election FOREIGN KEY(election_id) REFERENCES election(id) ON DELETE CASCADE         
     )
-    """,    
-     """ 
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS election_result(
+        id SERIAL NOT NULL PRIMARY KEY,
+        vote_percentage DECIMAL(5,2),
+        candidate_id INT,
+        vote_number INT,
+        election_id INT,
+        sub_election_id INT,
+        created TIMESTAMPTZ,
+        updated TIMESTAMPTZ,
+        CONSTRAINT fk_candiate FOREIGN KEY(candidate_id) REFERENCES candidate(id) ON DELETE CASCADE,
+        CONSTRAINT fk_election FOREIGN KEY(election_id) REFERENCES election(id) ON DELETE CASCADE,
+        CONSTRAINT fk_sub_election FOREIGN KEY(sub_election_id) REFERENCES sub_election(id) ON DELETE CASCADE
+    )
+    """,
+     """
     CREATE TABLE IF NOT EXISTS candidate(
         id SERIAL NOT NULL PRIMARY KEY,        
         name VARCHAR(400),
-        photo_url VARCHAR(2024),
         party VARCHAR(200),
         incumbent VARCHAR(10),
-        prior_offices VARCHAR(1024),
         current_office VARCHAR(400),
-        profession VARCHAR(200),                
+        profession VARCHAR(200),
+        photo_url VARCHAR(2024),        
         candidate_url VARCHAR(2024),        
         created TIMESTAMPTZ,
         updated TIMESTAMPTZ
     )
-    """,    
+    """,
      """
     CREATE TABLE IF NOT EXISTS education(
         id SERIAL NOT NULL PRIMARY KEY,
@@ -70,22 +84,15 @@ def create_tables():
         CONSTRAINT fk_candidate FOREIGN KEY(candidate_id) REFERENCES candidate(id) ON DELETE CASCADE
     )
     """,
-    """
-    CREATE TABLE IF NOT EXISTS election_result(
-        id SERIAL NOT NULL PRIMARY KEY,
-        candidate_id INT,
-        vote_percentage VARCHAR(10),        
-        vote_number VARCHAR(10),
-        election_id INT,
-        sub_election_id INT,
-        created TIMESTAMPTZ,
-        updated TIMESTAMPTZ,
-        CONSTRAINT fk_candiate FOREIGN KEY(candidate_id) REFERENCES candidate(id) ON DELETE CASCADE,
-        CONSTRAINT fk_election FOREIGN KEY(election_id) REFERENCES election(id) ON DELETE CASCADE,
-        CONSTRAINT fk_sub_election FOREIGN KEY(sub_election_id) REFERENCES sub_election(id) ON DELETE CASCADE
+     """
+    CREATE TABLE IF NOT EXISTS result_candidate_junction(
+        id SERIAL NOT NULL PRIMARY KEY,                
+        candidate_id INT NOT NULL,
+        result_id INT NOT NULL,
+        CONSTRAINT fk_candidate FOREIGN KEY(candidate_id) REFERENCES candidate(id) ON DELETE CASCADE,
+        CONSTRAINT fk_result FOREIGN KEY(result_id) REFERENCES election_result(id) ON DELETE CASCADE
     )
-    """,
-    )
+    """,)
 
     conn = None
 

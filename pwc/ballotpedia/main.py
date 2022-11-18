@@ -14,7 +14,7 @@ from selenium.webdriver.chrome.service import Service
 # from selenium.webdriver.support import expected_conditions as EC
 # from selenium.common.exceptions import TimeoutException
 # from selenium.webdriver.support.ui import Select
-from funcs import *
+from functions import *
 
 
 
@@ -69,7 +69,7 @@ else:
 
 driver.close()
 
-# state_elections(all_state_urls)
+state_elections(all_state_urls)
      
 
 print("--- %s seconds ---" % (time.time() - start_time))    
