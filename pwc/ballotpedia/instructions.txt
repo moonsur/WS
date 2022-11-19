@@ -1,0 +1,14 @@
+1.  install selenium
+    https://pypi.org/project/selenium/
+    https://www.geeksforgeeks.org/how-to-install-selenium-on-macos/
+2.  download chrome driver for selenium and put it in the following path ("C:\data\chromedriver\")
+    https://chromedriver.chromium.org/downloads
+    you have to download that version which is installed in your PC 
+3.  update the path to compatible with your operating system at 
+    main.py -> line 27 (chrome_driver_path = 'C:\\data\\chromedriver\\chromedriver.exe') 
+    functions.py -> line 18 (chrome_driver_path = 'C:\\data\\chromedriver\\chromedriver.exe')
+    config.py -> line 5 (db_config_file_path = db_config_file_dir + '\\db.ini')  
+
+4. run with vscode.
+
+Thanks     

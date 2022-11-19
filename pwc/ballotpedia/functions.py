@@ -128,7 +128,7 @@ def state_elections(all_state_urls):
         # print("database connection establishing time --- %s seconds ---" % (time.time() - start_time)) 
         
         us_senate(all_us_senate_elections)
-        # us_house(all_us_house_elections)
+        us_house(all_us_house_elections)
         # congress_special_election(all_congress_special_elections)
         # governor(all_governor_elections)
         # state_supreme_court(all_state_supreme_court_elections)
@@ -169,7 +169,7 @@ def us_senate(all_us_senate_elections):
 
 def us_house(all_us_house_elections):
     global total_urls
-   
+    office = 'U.S. House'
     for house_election in all_us_house_elections:
         state_name = house_election[0]
         election_year = house_election[1]
@@ -179,21 +179,32 @@ def us_house(all_us_house_elections):
           
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
         voteboxes = driver_election_info.find_elements(By.XPATH, xp)  
-        if len(voteboxes) > 0:      
-            scrape_voteboxes(state_name, election_year, voteboxes)             
+        if len(voteboxes) > 0: 
+            sub_office = 'At-large District'     
+            
+            scrape_voteboxes(state_name, election_year, voteboxes, office, sub_office)             
         else:
-            district_election_urls = driver_election_info.find_elements(By.XPATH, "//h3[contains(.,'District') and ./span[contains(@id,'District')]]/following-sibling::dl[1]//a")
-            lst_district_election_urls = [dis_ele_url.get_attribute('href').strip() for dis_ele_url in district_election_urls]
+            lst_district_election_urls = []
+
+            sub_elections = driver_election_info.find_elements(By.XPATH, "//h3[contains(.,'District') and ./span[contains(@id,'District')]]")   
+            for sub_election in sub_elections:
+                s_office = sub_election.text
+                sub_office_election_url = sub_election.find_element(By.XPATH, "./following-sibling::dl[1]//a").get_attribute('href').strip()
+                lst_district_election_urls.append((s_office, sub_office_election_url)) 
+            print('lst_district_election_urls = ',lst_district_election_urls)
             print('Number of District = ',len(lst_district_election_urls))
             # cont = 1
             for district_election_url in lst_district_election_urls:
-                driver_election_info.get(district_election_url)
+                print('district_election_url : ', district_election_url)
+                driver_election_info.get(district_election_url[1])
                 xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"
                 print(xp)
                 voteboxes = driver_election_info.find_elements(By.XPATH, xp)    
-                if len(voteboxes) > 0:      
+                if len(voteboxes) > 0:
+                    sub_office = district_election_url[0]      
                     print('voteboxes lenght for district election = ',len(voteboxes))
-                    scrape_voteboxes(state_name, election_year, voteboxes)
+                    
+                    scrape_voteboxes(state_name, election_year, voteboxes, office, sub_office)
                 # if cont > 5:
                 #     break
                 # cont +=1
@@ -214,8 +225,9 @@ def congress_special_election(all_congress_special_elections):
             xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
             voteboxes = driver_election_info.find_elements(By.XPATH, xp)     
             if len(voteboxes) > 0:      
-                scrape_voteboxes(state_name, election_year, voteboxes) 
-                scraped_urls.append(congress_special_election)           
+                scrape_voteboxes(state_name, election_year, voteboxes)
+                # scrape_voteboxes(state_name, election_year, voteboxes, office, sub_office) 
+                scraped_urls.append(election_url)           
             else:
                 xp_se =f"//ul/li/a[contains(@title,'special') and contains(@href,'{election_year}')]"              
                 special_elections = driver_election_info.find_elements(By.XPATH, xp_se)
@@ -249,9 +261,12 @@ def governor(all_governor_elections):
         total_urls += 1    
         # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
-        voteboxes = driver_election_info.find_elements(By.XPATH, xp)         
+        voteboxes = driver_election_info.find_elements(By.XPATH, xp)  
+        office = 'Governor' 
+        sub_office = ''      
 
-        scrape_voteboxes(state_name, election_year, voteboxes)
+        # scrape_voteboxes(state_name, election_year, voteboxes)
+        scrape_voteboxes(state_name, election_year, voteboxes, office, sub_office)
 
 def state_senate(all_state_senate_elections):           
     for state_senate_election in all_state_senate_elections:
@@ -479,8 +494,7 @@ def state_executive(all_state_executive_elections):
                     final_voteboxes.append(votebox)
 
             if len(final_voteboxes) > 0:
-                scrape_voteboxes(state_name, election_year, final_voteboxes)
-                pass
+                scrape_voteboxes(state_name, election_year, final_voteboxes)                
         else:
             general_election_date_obj = None
             primary_election_date_obj = None
@@ -767,6 +781,10 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
                 election_name = votebox.find_element(By.XPATH,".//h5[@class='votebox-header-election-type']").text.strip()                
                 print("Election Date:",str(election_date_object.date())) 
                 print('Election Name = ',election_name)
+                if office == 'Governor':
+                    if 'general' in election_name.lower():
+                        election_type = 'general'                    
+
                 if 'general' in election_name.lower():
                     election_type = 'general'
                 elif 'primary runoff' in election_name.lower():

@@ -2,7 +2,7 @@ import time
 # import requests
 from createtables import create_tables
 # from insertUpdate import *
-import psycopg2
+# import psycopg2
 # from config import config
 # from datetime import datetime, timezone
 # import os
@@ -60,7 +60,7 @@ if not body_content is None:
                 
             if not elections_by_state is None:
                 all_state = elections_by_state.find_elements(By.TAG_NAME,'a')
-                for state in all_state[0:1]:                    
+                for state in all_state[0:]:                    
                     # print(state.text,' = ', state.get_attribute('href'))
                     all_state_urls.append((state.text.strip(),h2.text.strip(),state.get_attribute('href').strip())) 
                                          
