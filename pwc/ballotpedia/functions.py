@@ -127,12 +127,12 @@ def state_elections(all_state_urls):
         conn = psycopg2.connect(**params)
         # print("database connection establishing time --- %s seconds ---" % (time.time() - start_time)) 
         
-        us_senate(all_us_senate_elections)
-        us_house(all_us_house_elections)
+        # us_senate(all_us_senate_elections)
+        # us_house(all_us_house_elections)
         # congress_special_election(all_congress_special_elections)
         # governor(all_governor_elections)
         # state_supreme_court(all_state_supreme_court_elections)
-        # school_boards(all_school_board_elections)
+        school_boards(all_school_board_elections)
         # municipal_government(all_municipal_government_urls)
         # state_executive(all_state_executive_elections)
         # state_senate(all_state_senate_elections)
@@ -265,7 +265,6 @@ def governor(all_governor_elections):
         office = 'Governor' 
         sub_office = ''      
 
-        # scrape_voteboxes(state_name, election_year, voteboxes)
         scrape_voteboxes(state_name, election_year, voteboxes, office, sub_office)
 
 def state_senate(all_state_senate_elections):           
@@ -691,11 +690,15 @@ def school_boards(all_school_board_elections):
         driver_election_info.get(election_url_sb)
         total_urls += 1
 
+        office = driver_election_info.find_element(By.XPATH, "//div[@class='bp-dropdown-menu']/following-sibling::p[1]/a[1]").text.strip()
+
         # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")  
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_sb}')]]"            
         voteboxes = driver_election_info.find_elements(By.XPATH, xp)  
-        if len(voteboxes) > 0:      
-            scrape_voteboxes(state_name_sb, election_year_sb, voteboxes) 
+        if len(voteboxes) > 0:            
+            sub_office = ''    
+            # scrape_voteboxes(state_name_sb, election_year_sb, voteboxes) 
+            scrape_voteboxes(state_name, election_year, voteboxes, office, sub_office)
 
 
 def municipal_government(all_municipal_government_urls): 
@@ -781,10 +784,18 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
                 election_name = votebox.find_element(By.XPATH,".//h5[@class='votebox-header-election-type']").text.strip()                
                 print("Election Date:",str(election_date_object.date())) 
                 print('Election Name = ',election_name)
+                
                 if office == 'Governor':
-                    if 'general' in election_name.lower():
-                        election_type = 'general'                    
+                    if 'lieutenant' in election_name.lower():
+                        office = 'Lieutenant Governor'                    
 
+                if 'school board' in office.lower():
+                    name_arr = election_name.split(' ')
+                    sub_office = name_arr[-2] + " " + name_arr[-1] 
+                    print('School board office = ', office)                   
+                    print('School board sub office = ', sub_office)                   
+
+                
                 if 'general' in election_name.lower():
                     election_type = 'general'
                 elif 'primary runoff' in election_name.lower():
