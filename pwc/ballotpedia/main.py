@@ -1,4 +1,5 @@
 import time
+
 # import requests
 from createtables import create_tables
 # from insertUpdate import *
@@ -15,7 +16,17 @@ from selenium.webdriver.chrome.service import Service
 # from selenium.common.exceptions import TimeoutException
 # from selenium.webdriver.support.ui import Select
 from functions import *
+import config
 
+
+
+# logging.info("************* main.py **********")
+# logging.info("Program is working as expected")
+# logging.warning("Warning, the program may not function properly")
+# logging.error("The program encountered an error")
+# logging.critical("The program crashed")
+
+logging.info(f" {'-*-'*10} EXECUTION START {'-*-'*10} ")
 
 
 start_time = time.time()
@@ -60,7 +71,7 @@ if not body_content is None:
                 
             if not elections_by_state is None:
                 all_state = elections_by_state.find_elements(By.TAG_NAME,'a')
-                for state in all_state[0:1]:                    
+                for state in all_state[0:]:                    
                     # print(state.text,' = ', state.get_attribute('href'))
                     all_state_urls.append((state.text.strip(),h2.text.strip(),state.get_attribute('href').strip())) 
                                          
@@ -72,4 +83,5 @@ driver.close()
 state_elections(all_state_urls)
      
 
-print("--- %s seconds ---" % (time.time() - start_time))    
+print("--- %s seconds ---" % (time.time() - start_time))
+logging.info("Total execution time -- %s seconds ---" % (time.time() - start_time))    

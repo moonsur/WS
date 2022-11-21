@@ -1,6 +1,16 @@
 from configparser import ConfigParser
 import os
 
+from datetime import date
+import logging
+
+today = date.today()
+d2 = today.strftime("%B %d %Y")
+log_file_name = 'Log '+str(d2)+'.txt'
+
+logging.basicConfig(filename=log_file_name, level=logging.INFO,
+                    format="%(asctime)s %(message)s", filemode="a")
+
 db_config_file_dir = os.path.dirname(os.path.abspath(__file__))
 db_config_file_path = db_config_file_dir + '\\db.ini'
 

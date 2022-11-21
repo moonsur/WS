@@ -2,6 +2,7 @@ import time
 import requests
 from sqlfunctions import *
 import psycopg2
+import config
 from config import config
 from datetime import datetime, timezone
 import os
@@ -13,6 +14,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
+import logging
+import sys
 
 
 chrome_driver_path = 'C:\\data\\chromedriver\\chromedriver.exe'
@@ -35,6 +38,7 @@ total_urls = 0
 conn = None
 
 def state_elections(all_state_urls):
+    function_name = 'state_elections'
     driver_by_state = webdriver.Chrome(service=serv_obj, options=options)
     driver_by_state.maximize_window() 
 
@@ -121,12 +125,10 @@ def state_elections(all_state_urls):
     try:
         global conn
         # read connection parameters
-        params = config() 
-        # start_time = time.time()
+        params = config()         
         # connect to the PostgreSql Server        
         conn = psycopg2.connect(**params)
-        # print("database connection establishing time --- %s seconds ---" % (time.time() - start_time)) 
-        
+               
         # us_senate(all_us_senate_elections)
         # us_house(all_us_house_elections)
         # congress_special_election(all_congress_special_elections)
@@ -140,12 +142,17 @@ def state_elections(all_state_urls):
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
+        logging.error(error)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        logging.error(f"@#$%^&*()_+= Something went wrong in File Name : {fname}, Error Type: {exc_type}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ")    
     finally:
         if conn is not None:
             conn.close()
 
     print('Total Urls Scraped = ', total_urls)
-    
+    logging.info(f'Total Urls Scraped =  {total_urls}')   
 
 
 
@@ -158,7 +165,8 @@ def us_senate(all_us_senate_elections):
         office = 'U.S. Senate'
         sub_office = ''
         driver_election_info.get(election_url) 
-        total_urls += 1    
+        total_urls += 1   
+        logging.info(f"URL to scrape = {election_url}") 
         
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
         voteboxes = driver_election_info.find_elements(By.XPATH, xp)         
@@ -175,7 +183,8 @@ def us_house(all_us_house_elections):
         election_year = house_election[1]
         election_url = house_election[2]
         driver_election_info.get(election_url)
-        total_urls += 1       
+        total_urls += 1 
+        logging.info(f"URL to scrape = {election_url}")       
           
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
         voteboxes = driver_election_info.find_elements(By.XPATH, xp)  
@@ -197,6 +206,7 @@ def us_house(all_us_house_elections):
             for district_election_url in lst_district_election_urls:
                 print('district_election_url : ', district_election_url)
                 driver_election_info.get(district_election_url[1])
+                logging.info(f"URL to scrape = {district_election_url[1]}") 
                 xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"
                 print(xp)
                 voteboxes = driver_election_info.find_elements(By.XPATH, xp)    
@@ -220,7 +230,8 @@ def congress_special_election(all_congress_special_elections):
         election_url = congress_special_election[2]
         if election_url not in scraped_urls:
             driver_election_info.get(election_url) 
-            total_urls += 1      
+            total_urls += 1 
+            logging.info(f"URL to scrape = {election_url}")      
             # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")
             xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
             voteboxes = driver_election_info.find_elements(By.XPATH, xp)     
@@ -238,6 +249,7 @@ def congress_special_election(all_congress_special_elections):
                     if special_election_url not in scraped_urls:
                         driver_election_info.get(special_election_url)
                         total_urls += 1
+                        logging.info(f"URL to scrape = {special_election_url}") 
                         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"
                         print(xp)
                         voteboxes = driver_election_info.find_elements(By.XPATH, xp)    
@@ -258,7 +270,8 @@ def governor(all_governor_elections):
         election_year = governor_election[1]
         election_url = governor_election[2]
         driver_election_info.get(election_url) 
-        total_urls += 1    
+        total_urls += 1 
+        logging.info(f"URL to scrape = {election_url}")    
         # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")
         xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year}')]]"            
         voteboxes = driver_election_info.find_elements(By.XPATH, xp)  
@@ -667,6 +680,7 @@ def state_executive(all_state_executive_elections):
 
 
 def school_boards(all_school_board_elections):
+    function_name = 'school_boards'
     global total_urls  
     all_school_board_election_urls = [] 
     for school_board_election in all_school_board_elections:
@@ -689,17 +703,24 @@ def school_boards(all_school_board_elections):
         election_url_sb = school_board_election_url[2]
         driver_election_info.get(election_url_sb)
         total_urls += 1
+        logging.info(f"URL to scrape = {election_url_sb}") 
 
-        office = driver_election_info.find_element(By.XPATH, "//div[@class='bp-dropdown-menu']/following-sibling::p[1]/a[1]").text.strip()
+        try:
+            office = driver_election_info.find_element(By.XPATH, "//div[@class='bp-dropdown-menu']/following-sibling::p[1]/a[1]").text.strip()
 
-        # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")  
-        xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_sb}')]]"            
-        voteboxes = driver_election_info.find_elements(By.XPATH, xp)  
-        if len(voteboxes) > 0:            
-            sub_office = ''    
-            # scrape_voteboxes(state_name_sb, election_year_sb, voteboxes) 
-            scrape_voteboxes(state_name, election_year, voteboxes, office, sub_office)
-
+            # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")  
+            xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_sb}')]]"            
+            voteboxes = driver_election_info.find_elements(By.XPATH, xp)  
+            if len(voteboxes) > 0:            
+                sub_office = ''    
+                # scrape_voteboxes(state_name_sb, election_year_sb, voteboxes) 
+                scrape_voteboxes(state_name_sb, election_year, voteboxes, office, sub_office)
+        except Exception as e:
+            logging.warning(f"Failed to find out the office information in the following URL = {election_url_sb}")
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            logging.error(f"@#$%^&*()_+= Something went wrong in File Name : {fname}, Error Type: {exc_type}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ") 
 
 def municipal_government(all_municipal_government_urls): 
     global total_urls
@@ -767,14 +788,17 @@ def state_supreme_court(all_state_supreme_court_elections):
                         scrape_voteboxes(state_name, election_year, voteboxes)
 
 def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=''):
-    print('Into the scrape voteboxes')
+    # print('Into the scrape voteboxes')
     global all_candidate_urls
     general_election_id = 0
+    function_name = 'scrape_voteboxes'
     for votebox in voteboxes:
         try:           
             sub_election_id = 0
             result_text = votebox.find_element(By.XPATH, ".//p[@class='results_text']").text.strip()            
-            election_date = str.split(result_text,'on')[-1].replace('.','').strip()
+            # election_date = str.split(result_text,'on')[-1].replace('.','').strip()
+            election_date = str.split(result_text,'on')[-1].split('.')[0].strip()
+            logging.info(f'Election date Text == {election_date}')
             election_date_object = datetime.strptime(election_date, "%B %d, %Y")
             # election_date_arr = str.split(election_date, ' ')
             curr_el_year = str.split(election_date, ' ')[-1].strip()
@@ -790,8 +814,13 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
                         office = 'Lieutenant Governor'                    
 
                 if 'school board' in office.lower():
-                    name_arr = election_name.split(' ')
-                    sub_office = name_arr[-2] + " " + name_arr[-1] 
+                    if 'at-large' in election_name.lower():
+                        sub_office = 'At-large'
+                    else:    
+                        name_arr = election_name.split(' ')
+                        sub_office = name_arr[-2] + " " + name_arr[-1]
+                        if '(' in sub_office:
+                            sub_office = '' 
                     print('School board office = ', office)                   
                     print('School board sub office = ', sub_office)                   
 
@@ -847,8 +876,11 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
 
             # break
         except Exception as e:
-            print("Someting went wrong in scrape_voteboxes") 
-            print(e)     
+            print("Someting went wrong in scrape_voteboxes")
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            logging.error(f"@#$%^&*()_+= Something went wrong in File Name : {fname}, Error Type: {exc_type}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ")    
 
   
 
@@ -858,6 +890,7 @@ def candidate_info(candidate_url, election_name, election_date, incumbent = ''):
        
     driver_candidate_info.get(candidate_url)
     total_urls += 1
+    logging.info(f"URL to scrape (candidate information) = {candidate_url}") 
    
     info_box = driver_candidate_info.find_element(By.XPATH, "//div[@class='infobox person']")
     print("*"*70)
