@@ -519,8 +519,9 @@ def state_executive(all_state_executive_elections):
             state_name = state_executive_election[0]
             election_year = state_executive_election[1]
             election_url = state_executive_election[2]
-            driver_election_info.get(election_url)
-            total_urls += 1     
+            driver_election_info.get(election_url)            
+            total_urls += 1   
+            logging.info(f"URL to scrape : {election_url}")  
             state_executive_elections = driver_election_info.find_elements(By.XPATH, "//table[@class='infobox']/following-sibling::p[2]//a[not (text()='Governor')]")
             for state_executive_election in state_executive_elections:
                 if state_executive_election.get_attribute('href') not in state_executive_election_urls_only:
@@ -543,6 +544,7 @@ def state_executive(all_state_executive_elections):
             driver_election_info.get(election_url_se)
             sub_office_se = ''
             total_urls += 1
+            logging.info(f"URL to scrape : {election_url_se}") 
                 
             xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_se}')]]"            
             voteboxes = driver_election_info.find_elements(By.XPATH, xp)
@@ -553,7 +555,7 @@ def state_executive(all_state_executive_elections):
                         final_voteboxes.append(votebox)
 
                 if len(final_voteboxes) > 0:
-                    scrape_voteboxes(state_name, election_year, final_voteboxes, election_title_se, sub_office_se)                
+                    scrape_voteboxes(state_name_se, election_year, final_voteboxes, election_title_se, sub_office_se)                
             else:
                 general_election_date_obj = None
                 primary_election_date_obj = None
@@ -657,14 +659,14 @@ def state_executive(all_state_executive_elections):
                                                 
                                     #Insert data into election table
                                     if election_type == 'general':
-                                        general_election_id = insert_into_election(conn, state_name, election_title, sub_office_name, election_type, sub_election_name, str(election_date_obj.date()))
+                                        general_election_id = insert_into_election(conn, state_name_se, election_title, sub_office_name, election_type, sub_election_name, str(election_date_obj.date()))
                                         print('General Election ID in Table: ', general_election_id)
                                     else: 
                                         if election_date_obj is not None:
                                             election_date_str = str(election_date_obj.date()) 
                                         else:
                                             election_date_str = ''                    
-                                        sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, election_title, sub_office_name, election_type, party, sub_election_name, election_date_str)
+                                        sub_election_id = insert_into_sub_election(conn, general_election_id, state_name_se, election_title, sub_office_name, election_type, party, sub_election_name, election_date_str)
                                         print('Primary Election ID in Table: ', sub_election_id) 
 
                                     for i in range(len(candidate_urls)):
@@ -759,14 +761,14 @@ def state_executive(all_state_executive_elections):
                                     party = 'republican'         
                                 #Insert data into election table
                                 if election_type == 'general':
-                                    general_election_id = insert_into_election(conn, state_name, election_title, sub_office_name, election_type, election_name, str(election_date_obj.date()))
+                                    general_election_id = insert_into_election(conn, state_name_se, election_title, sub_office_name, election_type, election_name, str(election_date_obj.date()))
                                     print('General Election ID in Table: ', general_election_id)
                                 else: 
                                     if election_date_obj is not None:
                                             election_date_str = str(election_date_obj.date()) 
                                     else:
                                         election_date_str = ''                    
-                                    sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, election_title, sub_office_name, election_type, party, election_name, election_date_str)
+                                    sub_election_id = insert_into_sub_election(conn, general_election_id, state_name_se, election_title, sub_office_name, election_type, party, election_name, election_date_str)
                                     print('Primary Election ID in Table: ', sub_election_id)
 
 
