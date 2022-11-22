@@ -21,13 +21,24 @@ def insert_into_sub_election(conn, general_election_id, state_name, office, sub_
     cur = conn.cursor()
     now = str(datetime.now(timezone.utc))
     if general_election_id != 0:
-        sql = """INSERT INTO sub_election(election_id, state, office, sub_office, election_type, party, election_name, election_date, created)
-                VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
-        values = (general_election_id, state_name, office, sub_office, election_type, party, election_name, election_date, now)
-    else:
-        sql = """INSERT INTO sub_election(state, office, sub_office, election_type, party, election_name, election_date, created)
+        if election_date == '':
+            sql = """INSERT INTO sub_election(election_id, state, office, sub_office, election_type, party, election_name, created)
                 VALUES(%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
-        values = (state_name, office, sub_office, election_type, party, election_name, election_date, now)             
+            values = (general_election_id, state_name, office, sub_office, election_type, party, election_name, now)
+        else:    
+            sql = """INSERT INTO sub_election(election_id, state, office, sub_office, election_type, party, election_name, election_date, created)
+                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
+            values = (general_election_id, state_name, office, sub_office, election_type, party, election_name, election_date, now)
+    else:
+        if election_date == '':
+            sql = """INSERT INTO sub_election(state, office, sub_office, election_type, party, election_name, created)
+                    VALUES(%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
+            values = (state_name, office, sub_office, election_type, party, election_name, now)
+        else:    
+            sql = """INSERT INTO sub_election(state, office, sub_office, election_type, party, election_name, election_date, created)
+                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
+            values = (state_name, office, sub_office, election_type, party, election_name, election_date, now)  
+
     cur.execute(sql, values)
     # get the generated id back
     sub_election_id = cur.fetchone()[0]    

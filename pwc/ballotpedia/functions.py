@@ -304,10 +304,14 @@ def scrape_headertabs(state_name, election_year, election_url, office):
     global all_candidate_urls
     driver_election_info.get(election_url)
     total_urls += 1
+    logging.info(f"URL to scrape = {election_url}") 
+
 
     general_election_date_obj = None
     primary_election_date_obj = None
     primary_runoff_election_date_obj = None
+    function_name = 'scrape_headertabs'
+    g_id_dict = {}
 
     election_date_rows = driver_election_info.find_elements(By.XPATH, "//table[@class='infobox']//tr[./td[./b[contains(.,'Primary') or contains(.,'Primary runoff') or contains(.,'General')]]]")
     
@@ -338,6 +342,7 @@ def scrape_headertabs(state_name, election_year, election_url, office):
         
         print('*'*50)
         print("General Election Date: ",general_election_date_obj)
+        election_type = 'general'
         for general_election_of_sub_office in general_election_of_sub_offices:
             tds = general_election_of_sub_office.find_elements(By.XPATH, "./td")
             sub_office = tds[0].text.strip()
@@ -356,19 +361,37 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                                 incumbents.append('')                
                     except:
                         print(f"{office} - {sub_office} General Election, somthing went wrong into candidate collection on column : ", i)
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                        print(exc_type, fname, exc_tb.tb_lineno)
+                        logging.error(f"@#$%^&*()_+= Something went wrong in File Name : {fname}, Error Type: {exc_type}, Office: {office}, Sub Office: {sub_office}, Election Name: {general_election_name}, Column No: {i}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ")
             print('Office = ', office)
             print('Sub Office = ', sub_office) 
             print('Election Name : ', general_election_name)        
             print('Incumbents : ', incumbents)        
             print('Candidate Urls : ', candidate_urls)
+            general_election_id = insert_into_election(conn, state_name, office, sub_office, election_type, general_election_name, str(general_election_date_obj.date()))
+            g_id_dict[sub_office] = general_election_id
+            sub_election_id = 0
             for i in range(len(candidate_urls)):
+                candidate_id = 0
                 if candidate_urls[i] in all_candidate_urls:
                     print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
+                    candidate_id = get_candidate_id(conn, candidate_urls[i])
                 else: 
-                    candidate_info(candidate_urls[i], general_election_name, general_election_date_obj, incumbents[i])
-                    all_candidate_urls.append(candidate_urls[i])        
+                    candidate_id = candidate_info(candidate_urls[i], general_election_name, general_election_date_obj, incumbents[i])
+                    all_candidate_urls.append(candidate_urls[i])
+                if candidate_id != 0:
+                    vote_percentage = -1
+                    vote_number = -1
+                    insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type)
+        logging.info(f"General Election ID Dictionary : {g_id_dict}")                         
     except:
         print(f"Something went wrong in {office} General and url is = {election_url}")
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        logging.error(f"@#$%^&*()_+= Something went wrong in File Name : {fname}, Error Type: {exc_type}, Office: {office}, Sub Office: {sub_office}, Election Name: {general_election_name}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ") 
 # **************** Primary runoff elections Section *********************
     # time.sleep(2)
     try:
@@ -406,17 +429,26 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                         print('Election Name : ', primary_runoff_election_name)        
                         print('Incumbents : ', incumbents)        
                         print('Candidate Urls : ', candidate_urls)
-                        for i in range(len(candidate_urls)):
-                            if candidate_urls[i] in all_candidate_urls:
+                        for j in range(len(candidate_urls)):
+                            if candidate_urls[j] in all_candidate_urls:
                                 print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
                             else: 
-                                candidate_info(candidate_urls[i], primary_runoff_election_name, primary_runoff_election_date_obj, incumbents[i])
-                                all_candidate_urls.append(candidate_urls[i])
+                                candidate_info(candidate_urls[j], primary_runoff_election_name, primary_runoff_election_date_obj, incumbents[j])
+                                all_candidate_urls.append(candidate_urls[j])
 
                 except:
-                    print("Primary runoff Election, somthing went wrong into candidate collection on column : ", i)
+                    print("Primary runoff Election, somthing went wrong into candidate collection on column : ", i)                    
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    print(exc_type, fname, exc_tb.tb_lineno)
+                    logging.error(f"@#$%^&*()_+= Something went wrong in File Name : {fname}, Error Type: {exc_type}, Office: {office}, Sub Office: {sub_office}, Election Name: {primary_runoff_election_name}, Column No: {i}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ")
+                    
     except:        
         print(f"Something went wrong in {office} Primary runoff and url is = {election_url}")  
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        logging.error(f"@#$%^&*()_+= Something went wrong in File Name : {fname}, Error Type: {exc_type}, Office: {office}, Sub Office: {sub_office}, Election Name: {primary_runoff_election_name}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ") 
     
 # **************** Primary elections Section *********************
 
@@ -460,9 +492,18 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                                 candidate_info(candidate_urls[i], primary_election_name, primary_election_date_obj, incumbents[i])
                                 all_candidate_urls.append(candidate_urls[i])        
                 except:
-                    print("Primary Election, somthing went wrong into candidate collection on column : ", i)                
+                    print("Primary Election, somthing went wrong into candidate collection on column : ", i) 
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    print(exc_type, fname, exc_tb.tb_lineno)
+                    logging.error(f"@#$%^&*()_+= Something went wrong in File Name : {fname}, Error Type: {exc_type}, Office: {office}, Sub Office: {sub_office}, Election Name: {primary_election_name}, Column No: {i}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ")
+
     except:        
         print(f"Something went wrong in {office} Primary and url is = {election_url}") 
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        logging.error(f"@#$%^&*()_+= Something went wrong in File Name : {fname}, Error Type: {exc_type}, Office: {office}, Sub Office: {sub_office}, Election Name: {primary_election_name}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ") 
 
 # State Executive Function
 
@@ -534,6 +575,7 @@ def state_executive(all_state_executive_elections):
                             primary_runoff_election_date_obj = datetime.strptime(primary_runoff_election_date_str, "%B %d, %Y")     
 
                 sub_offices = driver_election_info.find_elements(By.XPATH, "//h2[./span[@id='Candidates_and_election_results']]//following-sibling::h3[./span[contains(@class,'mw-headline') and not (starts-with(@id,'20')) and not (starts-with(@id,'Campaign'))]]")
+                #Elecetons which have sub office
                 if len(sub_offices) > 0:
                     for sub_office in sub_offices:
                         election_title = ''
@@ -611,13 +653,18 @@ def state_executive(all_state_executive_elections):
                                     if 'democratic' in sub_election_name.lower():
                                         party = 'democratic' 
                                     elif 'republican' in sub_election_name.lower():
-                                        party = 'republican'         
+                                        party = 'republican'  
+                                                
                                     #Insert data into election table
                                     if election_type == 'general':
                                         general_election_id = insert_into_election(conn, state_name, election_title, sub_office_name, election_type, sub_election_name, str(election_date_obj.date()))
                                         print('General Election ID in Table: ', general_election_id)
-                                    else:                    
-                                        sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, election_title, sub_office_name, election_type, party, sub_election_name, str(election_date_obj.date()))
+                                    else: 
+                                        if election_date_obj is not None:
+                                            election_date_str = str(election_date_obj.date()) 
+                                        else:
+                                            election_date_str = ''                    
+                                        sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, election_title, sub_office_name, election_type, party, sub_election_name, election_date_str)
                                         print('Primary Election ID in Table: ', sub_election_id) 
 
                                     for i in range(len(candidate_urls)):
@@ -640,6 +687,8 @@ def state_executive(all_state_executive_elections):
                                 # print("Tag Text : ", sub_office_sibling.text)
                             else:
                                 print("Tag name : ", sub_office_sibling.tag_name)
+
+                #Elections which don't have sub office                
                 else:
                     candidates_and_election_results_siblings = driver_election_info.find_elements(By.XPATH, "//h2[./span[@id='Candidates_and_election_results']]/following-sibling::*")
                     flag = 0
@@ -712,8 +761,12 @@ def state_executive(all_state_executive_elections):
                                 if election_type == 'general':
                                     general_election_id = insert_into_election(conn, state_name, election_title, sub_office_name, election_type, election_name, str(election_date_obj.date()))
                                     print('General Election ID in Table: ', general_election_id)
-                                else:                    
-                                    sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, election_title, sub_office_name, election_type, party, election_name, str(election_date_obj.date()))
+                                else: 
+                                    if election_date_obj is not None:
+                                            election_date_str = str(election_date_obj.date()) 
+                                    else:
+                                        election_date_str = ''                    
+                                    sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, election_title, sub_office_name, election_type, party, election_name, election_date_str)
                                     print('Primary Election ID in Table: ', sub_election_id)
 
 
@@ -740,7 +793,7 @@ def state_executive(all_state_executive_elections):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         print(exc_type, fname, exc_tb.tb_lineno)
-        logging.error(f"@#$%^&*()_+= Something went wrong in File Name : {fname}, Error Type: {exc_type}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ")                         
+        logging.error(f"@#$%^&*()_+= Something went wrong in File Name : {fname}, Error Type: {exc_type}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno}, Office: {election_title}, Sub Office: {sub_office_name}, Election Name: {election_name}  ")                         
 
 
 
