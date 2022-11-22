@@ -134,9 +134,9 @@ def state_elections(all_state_urls):
         # congress_special_election(all_congress_special_elections)
         # governor(all_governor_elections)
         # state_supreme_court(all_state_supreme_court_elections)
-        school_boards(all_school_board_elections)
+        # school_boards(all_school_board_elections)
         # municipal_government(all_municipal_government_urls)
-        # state_executive(all_state_executive_elections)
+        state_executive(all_state_executive_elections)
         # state_senate(all_state_senate_elections)
         # state_house(all_state_house_elections)
 
@@ -464,115 +464,224 @@ def scrape_headertabs(state_name, election_year, election_url, office):
     except:        
         print(f"Something went wrong in {office} Primary and url is = {election_url}") 
 
+# State Executive Function
+
 def state_executive(all_state_executive_elections):
     global total_urls 
     global all_candidate_urls   
     all_state_executive_election_urls = []       
-    state_executive_election_urls_only = []       
-    for state_executive_election in all_state_executive_elections:
-        state_name = state_executive_election[0]
-        election_year = state_executive_election[1]
-        election_url = state_executive_election[2]
-        driver_election_info.get(election_url)
-        total_urls += 1     
-        state_executive_elections = driver_election_info.find_elements(By.XPATH, "//table[@class='infobox']/following-sibling::p[2]//a[not (text()='Governor')]")
-        for state_executive_election in state_executive_elections:
-            if state_executive_election.get_attribute('href') not in state_executive_election_urls_only:
-                title = state_executive_election.text
-                url = state_executive_election.get_attribute('href')
-                all_state_executive_election_urls.append((state_name, election_year, title, url))
-                state_executive_election_urls_only.append(url)
+    state_executive_election_urls_only = []   
+    function_name = 'state_executive' 
+    
+    try:   
+        for state_executive_election in all_state_executive_elections:
+            state_name = state_executive_election[0]
+            election_year = state_executive_election[1]
+            election_url = state_executive_election[2]
+            driver_election_info.get(election_url)
+            total_urls += 1     
+            state_executive_elections = driver_election_info.find_elements(By.XPATH, "//table[@class='infobox']/following-sibling::p[2]//a[not (text()='Governor')]")
+            for state_executive_election in state_executive_elections:
+                if state_executive_election.get_attribute('href') not in state_executive_election_urls_only:
+                    title = state_executive_election.text
+                    url = state_executive_election.get_attribute('href')
+                    all_state_executive_election_urls.append((state_name, election_year, title, url))
+                    state_executive_election_urls_only.append(url)
 
-    print("State executive election urls:")
-    print("^"*50)
-    print(*all_state_executive_election_urls,sep='\n')
-    for state_executive_election_url in all_state_executive_election_urls:
-        print("State executive election url:")
+        print("State executive election urls:")
         print("^"*50)
-        print(state_executive_election_url)
-        state_name_se = state_executive_election_url[0]
-        election_year_se = state_executive_election_url[1]
-        election_title_se = state_executive_election_url[2]
-        election_url_se = state_executive_election_url[3]
-        driver_election_info.get(election_url_se)
-        total_urls += 1
-               
-        xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_se}')]]"            
-        voteboxes = driver_election_info.find_elements(By.XPATH, xp)
-        final_voteboxes = []         
-        if len(voteboxes) > 0:
-            for votebox in voteboxes:
-                if election_title_se.lower() in votebox.find_element(By.XPATH, ".//h5[@class='votebox-header-election-type']").text.lower():
-                    final_voteboxes.append(votebox)
+        print(*all_state_executive_election_urls,sep='\n')
+        for state_executive_election_url in all_state_executive_election_urls:
+            print("State executive election url:")
+            print("^"*50)
+            print(state_executive_election_url)
+            state_name_se = state_executive_election_url[0]
+            election_year_se = state_executive_election_url[1]
+            election_title_se = state_executive_election_url[2]
+            election_url_se = state_executive_election_url[3]
+            driver_election_info.get(election_url_se)
+            sub_office_se = ''
+            total_urls += 1
+                
+            xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_se}')]]"            
+            voteboxes = driver_election_info.find_elements(By.XPATH, xp)
+            final_voteboxes = []         
+            if len(voteboxes) > 0:
+                for votebox in voteboxes:
+                    if election_title_se.lower() in votebox.find_element(By.XPATH, ".//h5[@class='votebox-header-election-type']").text.lower():
+                        final_voteboxes.append(votebox)
 
-            if len(final_voteboxes) > 0:
-                scrape_voteboxes(state_name, election_year, final_voteboxes)                
-        else:
-            general_election_date_obj = None
-            primary_election_date_obj = None
-            primary_runoff_election_date_obj = None
-            elections_date = driver_election_info.find_elements(By.XPATH, "//table[@class='infobox']//td/small[./b[contains(.,'Primary') or contains(.,'Primary runoff') or contains(.,'General')]]")
-            if len(elections_date) > 0:
-                for election_date in elections_date:
-                    if 'General:' in election_date.text:
-                        general_election_date_str = str.replace(election_date.text.split(':')[-1],"(canceled)",'').strip()
-                        print('General: ', general_election_date_str) 
-                        general_election_date_obj = datetime.strptime(general_election_date_str, "%B %d, %Y")   
-                    elif 'Primary:' in election_date.text:
-                        primary_election_date_str = str.replace(election_date.text.split(':')[-1],"(canceled)",'').strip()
-                        print('Primary: ', primary_election_date_str)
-                        primary_election_date_obj = datetime.strptime(primary_election_date_str, "%B %d, %Y")     
-                    elif 'Primary runoff:' in election_date.text:
-                        primary_runoff_election_date_str = str.replace(election_date.text.split(':')[-1],"(canceled)",'').strip()
-                        print('Primary runoff: ', primary_runoff_election_date_str)
-                        primary_runoff_election_date_obj = datetime.strptime(primary_runoff_election_date_str, "%B %d, %Y")     
+                if len(final_voteboxes) > 0:
+                    scrape_voteboxes(state_name, election_year, final_voteboxes, election_title_se, sub_office_se)                
+            else:
+                general_election_date_obj = None
+                primary_election_date_obj = None
+                primary_runoff_election_date_obj = None
+                elections_date = driver_election_info.find_elements(By.XPATH, "//table[@class='infobox']//td/small[./b[contains(.,'Primary') or contains(.,'Primary runoff') or contains(.,'General')]]")
+                if len(elections_date) > 0:
+                    for election_date in elections_date:
+                        if 'General:' in election_date.text:
+                            general_election_date_str = str.replace(election_date.text.split(':')[-1],"(canceled)",'').strip()
+                            print('General: ', general_election_date_str) 
+                            general_election_date_obj = datetime.strptime(general_election_date_str, "%B %d, %Y")   
+                        elif 'Primary:' in election_date.text:
+                            primary_election_date_str = str.replace(election_date.text.split(':')[-1],"(canceled)",'').strip()
+                            print('Primary: ', primary_election_date_str)
+                            primary_election_date_obj = datetime.strptime(primary_election_date_str, "%B %d, %Y")     
+                        elif 'Primary runoff:' in election_date.text:
+                            primary_runoff_election_date_str = str.replace(election_date.text.split(':')[-1],"(canceled)",'').strip()
+                            print('Primary runoff: ', primary_runoff_election_date_str)
+                            primary_runoff_election_date_obj = datetime.strptime(primary_runoff_election_date_str, "%B %d, %Y")     
 
-            sub_offices = driver_election_info.find_elements(By.XPATH, "//h2[./span[@id='Candidates_and_election_results']]//following-sibling::h3[./span[contains(@class,'mw-headline') and not (starts-with(@id,'20')) and not (starts-with(@id,'Campaign'))]]")
-            if len(sub_offices) > 0:
-                for sub_office in sub_offices:
-                    election_title = ''
-                    sub_office_name = sub_office.text.strip()
-                    print("Sub Offices : ", sub_office_name)
-                    sub_office_siblings = sub_office.find_elements(By.XPATH, "./following-sibling::*")
+                sub_offices = driver_election_info.find_elements(By.XPATH, "//h2[./span[@id='Candidates_and_election_results']]//following-sibling::h3[./span[contains(@class,'mw-headline') and not (starts-with(@id,'20')) and not (starts-with(@id,'Campaign'))]]")
+                if len(sub_offices) > 0:
+                    for sub_office in sub_offices:
+                        election_title = ''
+                        sub_office_name = sub_office.text.strip()
+                        print("Sub Offices : ", sub_office_name)
+                        sub_office_siblings = sub_office.find_elements(By.XPATH, "./following-sibling::*")
+                        flag = 0
+                        sub_election_name = ''                                       
+                        election_date_obj = None
+                        election_type = ''
+                        general_election_id = 0
+                    
+                        for sub_office_sibling in sub_office_siblings:                        
+                            # if sub_office_sibling.tag_name == 'h3' or sub_office_sibling.tag_name == 'h2':                            
+                            if sub_office_sibling.tag_name == 'h2' or sub_office_sibling.tag_name == 'h3' or sub_office_sibling.tag_name == 'h4':
+                                break
+                            elif sub_office_sibling.tag_name == 'p':
+                                if flag == 0:
+                                    try:
+                                        sub_election_text = sub_office_sibling.find_element(By.XPATH, "./span[contains(@style,'font-weight: bold')]")
+                                    except:
+                                        continue
+                                    if election_title_se != "University of Michigan Board of Regents":    
+                                        sub_election_name = str.replace(sub_election_text.text,'candidates', '').strip() + ' for ' + state_name_se +' '+ election_title_se +' '+ sub_office.text.strip()
+                                        election_title = election_title_se
+                                    else:
+                                        sub_election_name = str.replace(sub_election_text.text,'candidates', '').strip() + ' for ' + sub_office.text.strip()
+                                        if election_title == '': 
+                                            election_title = sub_office_name
+                                            sub_office_name = ''
+                                    
+                                    if 'general' in sub_election_name.lower() and 'primary' not in sub_election_name.lower():
+                                        election_date_obj = general_election_date_obj
+                                        election_type = 'general'
+                                    elif 'primary runoff' in sub_election_name.lower():
+                                        election_date_obj = primary_runoff_election_date_obj
+                                        election_type = 'primary runoff'
+                                    else:
+                                        election_date_obj = primary_election_date_obj 
+                                        election_type = 'primary'       
+                                    # print("Election Name : ",sub_election_name)
+                                    flag = 1
+                                    #General election for Alabama State Board of Education District 1
+                                    
+                                elif flag == 1:
+                                    if sub_office_sibling.text == '':
+                                        flag = 2
+                                        
+                            elif sub_office_sibling.tag_name == 'ul':
+                                if flag == 2:
+                                    sub_election_id = 0
+                                    candidates_li = sub_office_sibling.find_elements(By.XPATH, ".//li")
+                                    candidate_urls = []
+                                    incumbents = [] 
+                                    for candidate_li in candidates_li:
+                                        if 'incumbent' in candidate_li.text.strip().lower():
+                                            incumbents.append('Yes')
+                                        else:
+                                            incumbents.append('')    
+                                        try:    
+                                            candidate_url = candidate_li.find_element(By.XPATH, "./a").get_attribute('href')
+                                            candidate_urls.append(candidate_url)
+                                        except:
+                                            continue 
+                                    
+                                    flag = 0 
+                                    print("**************** Sub office Elelction Details ***************")    
+                                    print('Election Title: ', election_title)
+                                    print('Sub Office Name: ', sub_office_name)
+                                    print("Election Date: ",election_date_obj) 
+                                    print('Election Name: ',sub_election_name)
+                                    print('Incumbents: ', incumbents)
+                                    print('Candidate Urls: ', candidate_urls)
+
+                                    if 'democratic' in sub_election_name.lower():
+                                        party = 'democratic' 
+                                    elif 'republican' in sub_election_name.lower():
+                                        party = 'republican'         
+                                    #Insert data into election table
+                                    if election_type == 'general':
+                                        general_election_id = insert_into_election(conn, state_name, election_title, sub_office_name, election_type, sub_election_name, str(election_date_obj.date()))
+                                        print('General Election ID in Table: ', general_election_id)
+                                    else:                    
+                                        sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, election_title, sub_office_name, election_type, party, sub_election_name, str(election_date_obj.date()))
+                                        print('Primary Election ID in Table: ', sub_election_id) 
+
+                                    for i in range(len(candidate_urls)):
+                                        candidate_id = 0
+                                        if candidate_urls[i] in all_candidate_urls:
+                                            print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
+                                            candidate_id = get_candidate_id(conn, candidate_urls[i])
+                                        else: 
+                                            candidate_id = candidate_info(candidate_urls[i], sub_election_name, election_date_obj, incumbents[i])
+                                            all_candidate_urls.append(candidate_urls[i])
+
+                                        if candidate_id != 0:
+                                            vote_percentage = -1
+                                            vote_number = -1
+                                            insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type) 
+                                
+                                else:
+                                    flag = 0
+
+                                # print("Tag Text : ", sub_office_sibling.text)
+                            else:
+                                print("Tag name : ", sub_office_sibling.tag_name)
+                else:
+                    candidates_and_election_results_siblings = driver_election_info.find_elements(By.XPATH, "//h2[./span[@id='Candidates_and_election_results']]/following-sibling::*")
                     flag = 0
-                    sub_election_name = ''                                       
+                    election_name = ''                                       
                     election_date_obj = None
-                 
-                    for sub_office_sibling in sub_office_siblings:                        
-                        # if sub_office_sibling.tag_name == 'h3' or sub_office_sibling.tag_name == 'h2':
-                        if sub_office_sibling.tag_name == 'h2' or sub_office_sibling.tag_name == 'h3' or sub_office_sibling.tag_name == 'h4':
+                    sub_office_name = ''
+                    general_election_id = 0
+                    election_type = ''
+                    
+                    for candidates_and_election_results_sibling in candidates_and_election_results_siblings: 
+                        if candidates_and_election_results_sibling.tag_name == 'h2' or candidates_and_election_results_sibling.tag_name == 'h3' or candidates_and_election_results_sibling.tag_name == 'h4':
                             break
-                        elif sub_office_sibling.tag_name == 'p':
+                        elif candidates_and_election_results_sibling.tag_name == 'p':
                             if flag == 0:
                                 try:
-                                    sub_election_text = sub_office_sibling.find_element(By.XPATH, "./span[contains(@style,'font-weight: bold')]")
+                                    election_text = candidates_and_election_results_sibling.find_element(By.XPATH, "./span[contains(@style,'font-weight: bold')]")
                                 except:
                                     continue
-                                if election_title_se != "University of Michigan Board of Regents":    
-                                    sub_election_name = str.replace(sub_election_text.text,'candidates', '').strip() + ' for ' + state_name_se +' '+ election_title_se +' '+ sub_office.text.strip()
-                                    election_title = election_title_se
-                                else:
-                                     sub_election_name = str.replace(sub_election_text.text,'candidates', '').strip() + ' for ' + sub_office.text.strip()
-                                     if election_title == '': 
-                                        election_title = sub_office_name
-                                        sub_office_name = ''
-
-                                if 'general' in sub_election_name.lower():
+                                
+                                election_name = str.replace(election_text.text,'candidates', '').strip() + ' for ' + state_name_se +' '+ election_title_se
+                                election_title = election_title_se
+                                
+                                if 'general' in election_name.lower() and 'primary' not in election_name.lower() :
                                     election_date_obj = general_election_date_obj
-                                elif 'primary runoff' in sub_election_name.lower():
+                                    election_type = 'general'
+                                elif 'primary runoff' in election_name.lower():
                                     election_date_obj = primary_runoff_election_date_obj
+                                    election_type = 'primary runoff'
                                 else:
-                                    election_date_obj = primary_election_date_obj        
+                                    election_date_obj = primary_election_date_obj 
+                                    election_type = 'primary'       
                                 # print("Election Name : ",sub_election_name)
                                 flag = 1
                                 #General election for Alabama State Board of Education District 1
                             elif flag == 1:
-                                if sub_office_sibling.text == '':
+                                if candidates_and_election_results_sibling.text == '':
                                     flag = 2
                                     
-                        elif sub_office_sibling.tag_name == 'ul':
+                        elif candidates_and_election_results_sibling.tag_name == 'ul':
                             if flag == 2:
-                                candidates_li = sub_office_sibling.find_elements(By.XPATH, ".//li")
+                                sub_election_id = 0
+                                candidates_li = candidates_and_election_results_sibling.find_elements(By.XPATH, ".//li")
                                 candidate_urls = []
                                 incumbents = [] 
                                 for candidate_li in candidates_li:
@@ -587,96 +696,53 @@ def state_executive(all_state_executive_elections):
                                         continue 
                                 
                                 flag = 0 
-                                print("**************** Sub office Elelction Details ***************")    
+                                print("**************** Elelction Details ***************")    
                                 print('Election Title: ', election_title)
                                 print('Sub Office Name: ', sub_office_name)
                                 print("Election Date: ",election_date_obj) 
-                                print('Election Name: ',sub_election_name)
+                                print('Election Name: ',election_name)
                                 print('Incumbents: ', incumbents)
                                 print('Candidate Urls: ', candidate_urls)
+
+                                if 'democratic' in election_name.lower():
+                                    party = 'democratic' 
+                                elif 'republican' in election_name.lower():
+                                    party = 'republican'         
+                                #Insert data into election table
+                                if election_type == 'general':
+                                    general_election_id = insert_into_election(conn, state_name, election_title, sub_office_name, election_type, election_name, str(election_date_obj.date()))
+                                    print('General Election ID in Table: ', general_election_id)
+                                else:                    
+                                    sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, election_title, sub_office_name, election_type, party, election_name, str(election_date_obj.date()))
+                                    print('Primary Election ID in Table: ', sub_election_id)
+
+
                                 for i in range(len(candidate_urls)):
                                     if candidate_urls[i] in all_candidate_urls:
                                         print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
+                                        candidate_id = get_candidate_id(conn, candidate_urls[i])
                                     else: 
-                                        candidate_info(candidate_urls[i], sub_election_name, election_date_obj, incumbents[i])
+                                        candidate_id = candidate_info(candidate_urls[i], election_name, election_date_obj, incumbents[i])
                                         all_candidate_urls.append(candidate_urls[i])
+
+                                    vote_percentage = -1
+                                    vote_number = -1
+
+                                    if candidate_id != 0:
+                                        insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type)    
                             
                             else:
                                 flag = 0
-                            
 
-                            # print("Tag Text : ", sub_office_sibling.text)
                         else:
-                            print("Tag name : ", sub_office_sibling.tag_name)
-            else:
-                candidates_and_election_results_siblings = driver_election_info.find_elements(By.XPATH, "//h2[./span[@id='Candidates_and_election_results']]/following-sibling::*")
-                flag = 0
-                election_name = ''                                       
-                election_date_obj = None
-                sub_office_name = ''
-                
-                for candidates_and_election_results_sibling in candidates_and_election_results_siblings: 
-                    if candidates_and_election_results_sibling.tag_name == 'h2' or candidates_and_election_results_sibling.tag_name == 'h3' or candidates_and_election_results_sibling.tag_name == 'h4':
-                        break
-                    elif candidates_and_election_results_sibling.tag_name == 'p':
-                        if flag == 0:
-                            try:
-                                election_text = candidates_and_election_results_sibling.find_element(By.XPATH, "./span[contains(@style,'font-weight: bold')]")
-                            except:
-                                continue
-                              
-                            election_name = str.replace(election_text.text,'candidates', '').strip() + ' for ' + state_name_se +' '+ election_title_se
-                            election_title = election_title_se
-                            
-                            if 'general' in election_name.lower():
-                                election_date_obj = general_election_date_obj
-                            elif 'primary runoff' in election_name.lower():
-                                election_date_obj = primary_runoff_election_date_obj
-                            else:
-                                election_date_obj = primary_election_date_obj        
-                            # print("Election Name : ",sub_election_name)
-                            flag = 1
-                            #General election for Alabama State Board of Education District 1
-                        elif flag == 1:
-                            if candidates_and_election_results_sibling.text == '':
-                                flag = 2
-                                
-                    elif candidates_and_election_results_sibling.tag_name == 'ul':
-                        if flag == 2:
-                            candidates_li = candidates_and_election_results_sibling.find_elements(By.XPATH, ".//li")
-                            candidate_urls = []
-                            incumbents = [] 
-                            for candidate_li in candidates_li:
-                                if 'incumbent' in candidate_li.text.strip().lower():
-                                    incumbents.append('Yes')
-                                else:
-                                    incumbents.append('')    
-                                try:    
-                                    candidate_url = candidate_li.find_element(By.XPATH, "./a").get_attribute('href')
-                                    candidate_urls.append(candidate_url)
-                                except:
-                                    continue 
-                            
-                            flag = 0 
-                            print("**************** Elelction Details ***************")    
-                            print('Election Title: ', election_title)
-                            print('Sub Office Name: ', sub_office_name)
-                            print("Election Date: ",election_date_obj) 
-                            print('Election Name: ',election_name)
-                            print('Incumbents: ', incumbents)
-                            print('Candidate Urls: ', candidate_urls)
-                            for i in range(len(candidate_urls)):
-                                if candidate_urls[i] in all_candidate_urls:
-                                    print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
-                                else: 
-                                    candidate_info(candidate_urls[i], election_name, election_date_obj, incumbents[i])
-                                    all_candidate_urls.append(candidate_urls[i])
-                        
-                        else:
-                            flag = 0
+                            print("Tag name : ", candidates_and_election_results_sibling.tag_name)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        logging.error(f"@#$%^&*()_+= Something went wrong in File Name : {fname}, Error Type: {exc_type}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ")                         
 
-                    else:
-                        print("Tag name : ", candidates_and_election_results_sibling.tag_name)
+
 
 
 def school_boards(all_school_board_elections):
@@ -825,7 +891,7 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
                     print('School board sub office = ', sub_office)                   
 
                 
-                if 'general' in election_name.lower():
+                if 'general' in election_name.lower() and 'primary' not in election_name.lower():
                     election_type = 'general'
                 elif 'primary runoff' in election_name.lower():
                     election_type = 'primary runoff'
