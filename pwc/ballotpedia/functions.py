@@ -138,7 +138,7 @@ def state_elections(all_state_urls):
         # municipal_government(all_municipal_government_urls)
         # state_executive(all_state_executive_elections)
         state_senate(all_state_senate_elections)
-        # state_house(all_state_house_elections)
+        state_house(all_state_house_elections)
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -336,6 +336,7 @@ def scrape_headertabs(state_name, election_year, election_url, office):
 #************* General Elections Section *******************
     try:
         general_election_name = ''
+        sub_office = ''
         general = driver_election_info.find_element(By.XPATH, "//div[@id='General']")
         general_election_of_sub_offices = general.find_elements(By.XPATH, ".//tbody/tr")[3:]
         
@@ -397,6 +398,7 @@ def scrape_headertabs(state_name, election_year, election_url, office):
     # time.sleep(2)
     try:
         primary_runoff_election_name = ''
+        sub_office = ''
         election_type = 'primary runoff'
         driver_election_info.find_element(By.XPATH, "//div[@id='headertabs']//a[@href='#Primary_runoff']").click()  
         primary_runoff = driver_election_info.find_element(By.XPATH, "//div[@id='Primary_runoff']") 
@@ -472,6 +474,7 @@ def scrape_headertabs(state_name, election_year, election_url, office):
     try:
         election_type = 'primary'
         primary_election_name = ''
+        sub_office = ''
         driver_election_info.find_element(By.XPATH, "//div[@id='headertabs']//a[@href='#Primary']").click()  
         primary = driver_election_info.find_element(By.XPATH, "//div[@id='Primary']") 
         primary_election_of_sub_offices = primary.find_elements(By.XPATH, ".//tbody/tr")[3:]    
