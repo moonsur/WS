@@ -136,8 +136,8 @@ def state_elections(all_state_urls):
         # state_supreme_court(all_state_supreme_court_elections)
         # school_boards(all_school_board_elections)
         # municipal_government(all_municipal_government_urls)
-        state_executive(all_state_executive_elections)
-        # state_senate(all_state_senate_elections)
+        # state_executive(all_state_executive_elections)
+        state_senate(all_state_senate_elections)
         # state_house(all_state_house_elections)
 
     except (Exception, psycopg2.DatabaseError) as error:
@@ -335,6 +335,7 @@ def scrape_headertabs(state_name, election_year, election_url, office):
 
 #************* General Elections Section *******************
     try:
+        general_election_name = ''
         general = driver_election_info.find_element(By.XPATH, "//div[@id='General']")
         general_election_of_sub_offices = general.find_elements(By.XPATH, ".//tbody/tr")[3:]
         
@@ -395,6 +396,8 @@ def scrape_headertabs(state_name, election_year, election_url, office):
 # **************** Primary runoff elections Section *********************
     # time.sleep(2)
     try:
+        primary_runoff_election_name = ''
+        election_type = 'primary runoff'
         driver_election_info.find_element(By.XPATH, "//div[@id='headertabs']//a[@href='#Primary_runoff']").click()  
         primary_runoff = driver_election_info.find_element(By.XPATH, "//div[@id='Primary_runoff']") 
         primary_runoff_election_of_sub_offices = primary_runoff.find_elements(By.XPATH, ".//tbody/tr")[3:]    
@@ -408,13 +411,17 @@ def scrape_headertabs(state_name, election_year, election_url, office):
             for i in range(1,3):
                 candidate_urls = []
                 incumbents = [] 
-                try:
-                    for candidate_span in tds[i].find_elements(By.XPATH, ".//span[@class='candidate']"):
-                        candidate_urls.append(candidate_span.find_element(By.XPATH, ".//a[not (./img)]").get_attribute('href')) 
+                sub_election_id = 0
+                try:                    
+                    for candidate_span in tds[i].find_elements(By.XPATH, ".//span[@class='candidate']//a[not (./img)]"):
+                        candidate_urls.append(candidate_span.get_attribute('href')) 
+                        # candidate_urls.append(candidate_span.find_element(By.XPATH, ".//a[not (./img)]").get_attribute('href')) 
                         if i == 1:
                             primary_runoff_election_name = "Democratic primary runoff for " +  office + " " + state_name + " " + sub_office 
+                            party = 'democratic'
                         elif i == 2:
-                            primary_runoff_election_name = "Republican primary runoff for " +  office + " " + state_name  + " " + sub_office   
+                            primary_runoff_election_name = "Republican primary runoff for " +  office + " " + state_name  + " " + sub_office  
+                            party = 'republican' 
                         print('Candidate Text', candidate_span.text)
                         if '(i)' in candidate_span.text:
                             incumbents.append('Yes')
@@ -429,12 +436,22 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                         print('Election Name : ', primary_runoff_election_name)        
                         print('Incumbents : ', incumbents)        
                         print('Candidate Urls : ', candidate_urls)
+                        general_election_id = g_id_dict[sub_office]
+                        sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, office, sub_office, election_type, party, primary_runoff_election_name, str(primary_runoff_election_date_obj.date()))
+                        
                         for j in range(len(candidate_urls)):
+                            candidate_id = 0
                             if candidate_urls[j] in all_candidate_urls:
                                 print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
+                                candidate_id = get_candidate_id(conn, candidate_urls[j])
                             else: 
-                                candidate_info(candidate_urls[j], primary_runoff_election_name, primary_runoff_election_date_obj, incumbents[j])
+                                candidate_id = candidate_info(candidate_urls[j], primary_runoff_election_name, primary_runoff_election_date_obj, incumbents[j])
                                 all_candidate_urls.append(candidate_urls[j])
+
+                            if candidate_id != 0:
+                                vote_percentage = -1
+                                vote_number = -1
+                                insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type)    
 
                 except:
                     print("Primary runoff Election, somthing went wrong into candidate collection on column : ", i)                    
@@ -453,6 +470,8 @@ def scrape_headertabs(state_name, election_year, election_url, office):
 # **************** Primary elections Section *********************
 
     try:
+        election_type = 'primary'
+        primary_election_name = ''
         driver_election_info.find_element(By.XPATH, "//div[@id='headertabs']//a[@href='#Primary']").click()  
         primary = driver_election_info.find_element(By.XPATH, "//div[@id='Primary']") 
         primary_election_of_sub_offices = primary.find_elements(By.XPATH, ".//tbody/tr")[3:]    
@@ -466,13 +485,18 @@ def scrape_headertabs(state_name, election_year, election_url, office):
             for i in range(1,3):
                 candidate_urls = []
                 incumbents = [] 
+                sub_election_id = 0
                 try:
-                    for candidate_span in tds[i].find_elements(By.XPATH, ".//span[@class='candidate']"):
-                        candidate_urls.append(candidate_span.find_element(By.XPATH, ".//a[not (./img)]").get_attribute('href')) 
+                    for candidate_span in tds[i].find_elements(By.XPATH, ".//span[@class='candidate']//a[not (./img)]"):
+                    # for candidate_span in tds[i].find_elements(By.XPATH, ".//span[@class='candidate']"):
+                        candidate_urls.append(candidate_span.get_attribute('href')) 
+                        # candidate_urls.append(candidate_span.find_element(By.XPATH, ".//a[not (./img)]").get_attribute('href')) 
                         if i == 1:
                             primary_election_name = "Democratic primary for " +  office + " " + state_name + " " + sub_office 
+                            party = 'democratic'
                         elif i == 2:
-                            primary_election_name = "Republican primary for " +  office + " " + state_name  + " " + sub_office   
+                            primary_election_name = "Republican primary for " +  office + " " + state_name  + " " + sub_office  
+                            party = 'republican'  
                         print('Candidate Text', candidate_span.text)
                         if '(i)' in candidate_span.text:
                             incumbents.append('Yes')
@@ -485,12 +509,22 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                         print('Election Name : ', primary_election_name)        
                         print('Incumbents : ', incumbents)        
                         print('Candidate Urls : ', candidate_urls)
-                        for i in range(len(candidate_urls)):
-                            if candidate_urls[i] in all_candidate_urls:
+
+                        general_election_id = g_id_dict[sub_office]
+                        sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, office, sub_office, election_type, party, primary_election_name, str(primary_election_date_obj.date()))
+                        for j in range(len(candidate_urls)):
+                            candidate_id = 0
+                            if candidate_urls[j] in all_candidate_urls:
                                 print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
+                                candidate_id = get_candidate_id(conn, candidate_urls[j])
                             else: 
-                                candidate_info(candidate_urls[i], primary_election_name, primary_election_date_obj, incumbents[i])
-                                all_candidate_urls.append(candidate_urls[i])        
+                                candidate_id = candidate_info(candidate_urls[j], primary_election_name, primary_election_date_obj, incumbents[j])
+                                all_candidate_urls.append(candidate_urls[j]) 
+
+                            if candidate_id != 0:
+                                vote_percentage = -1
+                                vote_number = -1
+                                insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type)           
                 except:
                     print("Primary Election, somthing went wrong into candidate collection on column : ", i) 
                     exc_type, exc_obj, exc_tb = sys.exc_info()
