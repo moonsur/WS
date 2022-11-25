@@ -66,7 +66,7 @@ def insert_into_candidate(conn, name, photo_url, party, incumbent, prior_offices
 def insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type):
     cur = conn.cursor()
     now = str(datetime.now(timezone.utc))
-    if election_type == 'general':
+    if 'general' in election_type:
         sql = """INSERT INTO election_result(candidate_id, vote_percentage, vote_number, election_id, created)
                 VALUES(%s,%s,%s,%s,%s) RETURNING id;"""
         values = (candidate_id, vote_percentage, vote_number, general_election_id, now)
