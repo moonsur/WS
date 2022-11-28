@@ -37,6 +37,7 @@ driver_election_info = None
 driver_candidate_info = None 
 total_urls = 0
 conn = None
+state_arr = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio, Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming']
 
 def state_elections(all_state_urls):
     function_name = 'state_elections'
@@ -132,13 +133,13 @@ def state_elections(all_state_urls):
                
         # us_senate(all_us_senate_elections)
         # us_house(all_us_house_elections)
-        congress_special_election(all_congress_special_elections)
+        # congress_special_election(all_congress_special_elections)
         # governor(all_governor_elections)
         # state_supreme_court(all_state_supreme_court_elections)
         # school_boards(all_school_board_elections)
         # municipal_government(all_municipal_government_urls)
         # state_executive(all_state_executive_elections)
-        # state_senate(all_state_senate_elections)
+        state_senate(all_state_senate_elections)
         # state_house(all_state_house_elections)
 
     except (Exception, psycopg2.DatabaseError) as error:
@@ -343,7 +344,7 @@ def scrape_headertabs(state_name, election_year, election_url, office):
         general = None
         for _ in range(20):
             try:
-                general = driver_election_info.find_element(By.XPATH, "//div[@id='General']")
+                general = driver_election_info.find_element(By.XPATH, "//*[@id='General']")
             except:
                 pass    
             if general is not None:
@@ -420,7 +421,7 @@ def scrape_headertabs(state_name, election_year, election_url, office):
         primary_runoff_tab = None
         for _ in range(10):
             try: 
-                primary_runoff_tab = driver_election_info.find_element(By.XPATH, "//div[@id='headertabs']//a[@href='#Primary_runoff']")  
+                primary_runoff_tab = driver_election_info.find_element(By.XPATH, "//*[@id='headertabs']//a[@href='#Primary_runoff']")  
             except:
                 pass
             if primary_runoff_tab is not None:
@@ -523,7 +524,7 @@ def scrape_headertabs(state_name, election_year, election_url, office):
         primary_tab = None
         for _ in range(10):
             try: 
-                primary_tab = driver_election_info.find_element(By.XPATH, "//div[@id='headertabs']//a[@href='#Primary']") 
+                primary_tab = driver_election_info.find_element(By.XPATH, "//*[@id='headertabs']//a[@href='#Primary']") 
             except:
                 pass
             if primary_tab is not None:
@@ -955,6 +956,7 @@ def school_boards(all_school_board_elections):
 
 def municipal_government(all_municipal_government_urls): 
     global total_urls
+    function_name = 'municipal_government'
 
     all_municipal_government_election_urls = [] 
     for municipal_government_url in all_municipal_government_urls:
@@ -973,7 +975,10 @@ def municipal_government(all_municipal_government_urls):
                     url = municipal_government_election_url.get_attribute('href')
                     all_municipal_government_election_urls.append((state_name, election_year, url))
             except:
-                pass
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(exc_type, fname, exc_tb.tb_lineno)
+                logging.error(f"@#$%^&*()_+= Error occured in Municipal Government URL and City : {fname}, Error Type: {exc_type}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ")    
      
             
     print("Municipal government election urls:")
@@ -1052,8 +1057,11 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
                         office = 'Lieutenant Governor'  
 
                 if special_election:  
-                    name_arr = election_name.split(' ')
-                    state_name = name_arr[-3]                  
+                    name_arr = election_name.split(' ') 
+                    for state in state_arr:
+                        if state.lower() in election_name.lower():
+                            state_name = state                       
+                                      
                     if 'u.s. house' in  election_name.lower():
                         office = 'U.S. House'
                         if 'at-large' in election_name.lower():
