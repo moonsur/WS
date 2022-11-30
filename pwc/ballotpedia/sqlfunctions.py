@@ -1,51 +1,63 @@
 import psycopg2
 from datetime import datetime, timezone
+import logging
+import sys
 
 
-def insert_into_election(conn, state_name, office, sub_office, election_type, election_name, election_date):
-    cur = conn.cursor()
-    now = str(datetime.now(timezone.utc))
-    sql = """INSERT INTO election(state,office,sub_office,election_type,election_name,election_date,created)
-             VALUES(%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
-    values = (state_name, office, sub_office, election_type, election_name, election_date, now)         
-    cur.execute(sql, values)
-    # get the generated id back
-    general_election_id = cur.fetchone()[0]    
-    # commit the changes to the database
-    conn.commit()
-    cur.close()
-    return general_election_id
-
-
-def insert_into_sub_election(conn, general_election_id, state_name, office, sub_office, election_type, party, election_name, election_date):
-    cur = conn.cursor()
-    now = str(datetime.now(timezone.utc))
-    if general_election_id != 0:
-        if election_date == '':
-            sql = """INSERT INTO sub_election(election_id, state, office, sub_office, election_type, party, election_name, created)
+def insert_into_election(conn, state_name, office, sub_office, election_type, election_name, election_date, city=''):
+    logging.info(f"Function: insert_into_election, values:[state_name:{state_name}, office:{office}, sub_office:{sub_office}, election_type:{election_type}, election_name:{election_name}, election_date:{election_date}, city:{city}]")
+    try:
+        cur = conn.cursor()
+        now = str(datetime.now(timezone.utc))
+        sql = """INSERT INTO election(state, city, office, sub_office, election_type, election_name, election_date, created)
                 VALUES(%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
-            values = (general_election_id, state_name, office, sub_office, election_type, party, election_name, now)
-        else:    
-            sql = """INSERT INTO sub_election(election_id, state, office, sub_office, election_type, party, election_name, election_date, created)
-                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
-            values = (general_election_id, state_name, office, sub_office, election_type, party, election_name, election_date, now)
-    else:
-        if election_date == '':
-            sql = """INSERT INTO sub_election(state, office, sub_office, election_type, party, election_name, created)
-                    VALUES(%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
-            values = (state_name, office, sub_office, election_type, party, election_name, now)
-        else:    
-            sql = """INSERT INTO sub_election(state, office, sub_office, election_type, party, election_name, election_date, created)
-                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
-            values = (state_name, office, sub_office, election_type, party, election_name, election_date, now)  
+        values = (state_name, city, office, sub_office, election_type, election_name, election_date, now)         
+        cur.execute(sql, values)
+        # get the generated id back
+        general_election_id = cur.fetchone()[0]    
+        # commit the changes to the database
+        conn.commit()
+        cur.close()
+        return general_election_id
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+        logging.error(f"Function: insert_into_election. Error: {error}")    
 
-    cur.execute(sql, values)
-    # get the generated id back
-    sub_election_id = cur.fetchone()[0]    
-    # commit the changes to the database
-    conn.commit()
-    cur.close()
-    return sub_election_id
+
+def insert_into_sub_election(conn, general_election_id, state_name, office, sub_office, election_type, party, election_name, election_date, city=''):
+    logging.info(f"Function: insert_into_sub_election, values:[general_election_id:{general_election_id}, state_name:{state_name}, office:{office}, sub_office:{sub_office}, election_type:{election_type}, election_name:{election_name}, election_date:{election_date}, city:{city}]")
+    try:
+        cur = conn.cursor()
+        now = str(datetime.now(timezone.utc))
+        if general_election_id != 0:
+            if election_date == '':
+                sql = """INSERT INTO sub_election(election_id, state, city, office, sub_office, election_type, party, election_name, created)
+                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
+                values = (general_election_id, state_name, city, office, sub_office, election_type, party, election_name, now)
+            else:    
+                sql = """INSERT INTO sub_election(election_id, state, city, office, sub_office, election_type, party, election_name, election_date, created)
+                        VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
+                values = (general_election_id, state_name, city, office, sub_office, election_type, party, election_name, election_date, now)
+        else:
+            if election_date == '':
+                sql = """INSERT INTO sub_election(state, city, office, sub_office, election_type, party, election_name, created)
+                        VALUES(%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
+                values = (state_name, city, office, sub_office, election_type, party, election_name, now)
+            else:    
+                sql = """INSERT INTO sub_election(state, city, office, sub_office, election_type, party, election_name, election_date, created)
+                        VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
+                values = (state_name, city, office, sub_office, election_type, party, election_name, election_date, now)  
+
+        cur.execute(sql, values)
+        # get the generated id back
+        sub_election_id = cur.fetchone()[0]    
+        # commit the changes to the database
+        conn.commit()
+        cur.close()
+        return sub_election_id
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+        logging.error(f"Function: insert_into_sub_election. Error: {error}")     
 
 
 def insert_into_candidate(conn, name, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_url):
@@ -126,6 +138,10 @@ def get_candidate_id(conn, candidate_url):
         candidate_id = fetch_val[0]  
     cur.close()
     return candidate_id
+
+
+  ###################################################################################
+
 
 def data_insert_into_offices(conn,cur,values):
     """ Data insert into the table offices """

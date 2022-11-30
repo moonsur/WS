@@ -8,8 +8,9 @@ def create_tables():
     CREATE TABLE IF NOT EXISTS election(
         id SERIAL NOT NULL PRIMARY KEY,
         state VARCHAR(255) NOT NULL,
+        city VARCHAR(255),
         office VARCHAR(255) NOT NULL,
-        sub_office VARCHAR(255),
+        sub_office VARCHAR(255),        
         election_type VARCHAR(255),
         election_name VARCHAR(500),
         election_date DATE,
@@ -22,6 +23,7 @@ def create_tables():
         id SERIAL NOT NULL PRIMARY KEY,
         election_id INT,
         state VARCHAR(255) NOT NULL,
+        city VARCHAR(255),
         office VARCHAR(255) NOT NULL,
         sub_office VARCHAR(255),
         election_type VARCHAR(255),

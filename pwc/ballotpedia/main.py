@@ -71,7 +71,7 @@ if not body_content is None:
                 
             if not elections_by_state is None:
                 all_state = elections_by_state.find_elements(By.TAG_NAME,'a')
-                for state in all_state[1:2]:                    
+                for state in all_state[0:1]:                    
                     # print(state.text,' = ', state.get_attribute('href'))
                     all_state_urls.append((state.text.strip(),h2.text.strip(),state.get_attribute('href').strip())) 
                                          

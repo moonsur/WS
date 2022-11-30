@@ -137,9 +137,9 @@ def state_elections(all_state_urls):
         # governor(all_governor_elections)
         # state_supreme_court(all_state_supreme_court_elections)
         # school_boards(all_school_board_elections)
-        # municipal_government(all_municipal_government_urls)
+        municipal_government(all_municipal_government_urls)
         # state_executive(all_state_executive_elections)
-        state_senate(all_state_senate_elections)
+        # state_senate(all_state_senate_elections)
         # state_house(all_state_house_elections)
 
     except (Exception, psycopg2.DatabaseError) as error:
@@ -317,25 +317,32 @@ def scrape_headertabs(state_name, election_year, election_url, office):
     function_name = 'scrape_headertabs'
     g_id_dict = {}
 
-    election_date_rows = driver_election_info.find_elements(By.XPATH, "//table[@class='infobox']//tr[./td[./b[contains(.,'Primary') or contains(.,'Primary runoff') or contains(.,'General')]]]")
-    
-    if len(election_date_rows) > 0:        
-        for election_date_row in election_date_rows:
-            if 'General' in election_date_row.find_element(By.XPATH, "./td[1]").text:
-                general_election_date_str = election_date_row.find_element(By.XPATH, "./td[2]").text.strip()
-                # print('General: ', general_election_date_str) 
-                general_election_date_obj = datetime.strptime(general_election_date_str, "%B %d, %Y")
-                # print('General Date Obj: ', general_election_date_obj)    
-            elif 'Primary' in election_date_row.find_element(By.XPATH, "./td[1]").text and 'Primary runoff' not in election_date_row.find_element(By.XPATH, "./td[1]").text:
-                primary_election_date_str = election_date_row.find_element(By.XPATH, "./td[2]").text.strip()
-                # print('Primary: ', primary_election_date_str)
-                primary_election_date_obj = datetime.strptime(primary_election_date_str, "%B %d, %Y")
-                # print('Primary Date obj: ', primary_election_date_obj)     
-            elif 'Primary runoff' in election_date_row.find_element(By.XPATH, "./td[1]").text:
-                primary_runoff_election_date_str = election_date_row.find_element(By.XPATH, "./td[2]").text.strip()
-                # print('Primary runoff: ', primary_runoff_election_date_str)
-                primary_runoff_election_date_obj = datetime.strptime(primary_runoff_election_date_str, "%B %d, %Y")
-                # print('Primary runoff date obj: ', primary_runoff_election_date_obj)
+    for _ in range(10):
+        election_date_rows = driver_election_info.find_elements(By.XPATH, "//table[@class='infobox']//tr[./td[./b[contains(.,'Primary') or contains(.,'Primary runoff') or contains(.,'General')]]]")
+        
+        if len(election_date_rows) > 0:        
+            for election_date_row in election_date_rows:
+                if 'General' in election_date_row.find_element(By.XPATH, "./td[1]").text:
+                    general_election_date_str = election_date_row.find_element(By.XPATH, "./td[2]").text.strip()
+                    # print('General: ', general_election_date_str) 
+                    general_election_date_obj = datetime.strptime(general_election_date_str, "%B %d, %Y")
+                    # print('General Date Obj: ', general_election_date_obj)    
+                elif 'Primary' in election_date_row.find_element(By.XPATH, "./td[1]").text and 'Primary runoff' not in election_date_row.find_element(By.XPATH, "./td[1]").text:
+                    primary_election_date_str = election_date_row.find_element(By.XPATH, "./td[2]").text.strip()
+                    # print('Primary: ', primary_election_date_str)
+                    primary_election_date_obj = datetime.strptime(primary_election_date_str, "%B %d, %Y")
+                    # print('Primary Date obj: ', primary_election_date_obj)     
+                elif 'Primary runoff' in election_date_row.find_element(By.XPATH, "./td[1]").text:
+                    primary_runoff_election_date_str = election_date_row.find_element(By.XPATH, "./td[2]").text.strip()
+                    # print('Primary runoff: ', primary_runoff_election_date_str)
+                    primary_runoff_election_date_obj = datetime.strptime(primary_runoff_election_date_str, "%B %d, %Y")
+                    # print('Primary runoff date obj: ', primary_runoff_election_date_obj)
+            break        
+        else:
+            driver_election_info.get(election_url)
+            time.sleep(1)
+
+
 
 #************* General Elections Section *******************
     try:
@@ -356,7 +363,7 @@ def scrape_headertabs(state_name, election_year, election_url, office):
             driver_election_info.execute_script("arguments[0].scrollIntoView();", general)
             general_election_of_sub_offices = general.find_elements(By.XPATH, ".//tbody/tr")[3:]
             general_election_name_prefix = "General election for " + office + " " + state_name
-            
+            logging.info(f"{office} General sub office election length: {len(general_election_of_sub_offices)} ")
             # print('*'*50)
             # print("General Election Date: ",general_election_date_obj)
             election_type = 'general'
@@ -968,34 +975,65 @@ def municipal_government(all_municipal_government_urls):
         all_state_h3 = driver_election_info.find_elements(By.XPATH,"//div[@id='By_state']//h3")
         for state_h3 in all_state_h3:
             state_name = state_h3.text
-            try:
-                state_ul = state_h3.find_element(By.XPATH,"./following-sibling::ul")
-                municipal_government_election_urls_by_state = state_ul.find_elements(By.XPATH, ".//a")
-                for municipal_government_election_url in municipal_government_election_urls_by_state:
-                    url = municipal_government_election_url.get_attribute('href')
-                    all_municipal_government_election_urls.append((state_name, election_year, url))
-            except:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
-                logging.error(f"@#$%^&*()_+= Error occured in Municipal Government URL and City : {fname}, Error Type: {exc_type}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ")    
+            if "u.s. territories" in state_name.lower(): 
+             pass
+            else:   
+                try:
+                    state_ul = state_h3.find_element(By.XPATH,"./following-sibling::ul")
+                    state_li_list = state_ul.find_elements(By.XPATH, "./li")
+                    for state_li in state_li_list:
+                        city = state_li.text.split(',')[0].strip()
+                        municipal_government_election_urls_by_state = state_li.find_elements(By.XPATH, ".//a")
+                        # municipal_government_election_urls_by_state = state_ul.find_elements(By.XPATH, ".//a")
+                        for municipal_government_election_url in municipal_government_election_urls_by_state:
+                            url = municipal_government_election_url.get_attribute('href')
+                            all_municipal_government_election_urls.append((state_name, city, election_year, url))
+                except:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    print(exc_type, fname, exc_tb.tb_lineno)
+                    logging.error(f"@#$%^&*()_+= Error occured in Municipal Government URL and City : {fname}, Error Type: {exc_type}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ")    
      
             
-    print("Municipal government election urls:")
-    print("$"*50)
-    print(*all_municipal_government_election_urls, sep='\n')
+    # print("Municipal government election urls:")
+    # print("$"*50)
+    # print(*all_municipal_government_election_urls, sep='\n')
     for municipal_government_election_url in all_municipal_government_election_urls:
         state_name_mg = municipal_government_election_url[0]
-        election_year_mg = municipal_government_election_url[1]
-        election_url_mg = municipal_government_election_url[2]
-        driver_election_info.get(election_url_mg)
-        total_urls += 1
-
-        # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")  
-        xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_mg}')]]"            
-        voteboxes = driver_election_info.find_elements(By.XPATH, xp)  
-        if len(voteboxes) > 0:      
-            scrape_voteboxes(state_name_mg, election_year_mg, voteboxes)             
+        city_name_mg = municipal_government_election_url[1]
+        election_year_mg = municipal_government_election_url[2]
+        election_url_mg = municipal_government_election_url[3]
+        try:
+            driver_election_info.get(election_url_mg)
+            total_urls += 1
+            print("Municipal government election urls:", election_url_mg)
+            # voteboxes = driver_election_info.find_elements(By.XPATH, "//div[@class='votebox']")  
+            # xp = f"//div[@class='votebox' and .//p[contains(.,'{election_year_mg}')]]"            
+            xp = f"//div[@id='Candidates_and_results']/h2[./following-sibling::div[./div[@class='votebox']]]"       
+            muni_offices_vot = driver_election_info.find_elements(By.XPATH, xp) 
+            for muni_office_vot in muni_offices_vot:
+                office = muni_office_vot.text.strip()
+                # office = str.replace(muni_office_vot.text,'/','-').strip()
+                print("State: ",state_name_mg)
+                print("City: ",city_name_mg)                
+                print("Office: ",muni_office_vot.text)
+               
+                # xp_vot = f"./following-sibling::div[./div[@class='votebox']//h5[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'{office.lower()}')]]"
+                xp_vot = f"./following-sibling::div/div[@class='votebox' and .//h5[contains(translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'{office.lower()}')]]"
+                print(xp_vot)
+                voteboxes = muni_office_vot.find_elements(By.XPATH, xp_vot)  
+                print("Lengnth of Voteboxes: ", len(voteboxes))
+                category = 'municipal'
+                sub_office = ''
+                if len(voteboxes) > 0:      
+                    scrape_voteboxes(state_name_mg, election_year_mg, voteboxes, office, sub_office, city_name_mg, category)  
+                    # pass 
+            
+        except:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            logging.error(f"@#$%^&*()_+= Error occured in Municipal Government, URL {election_url_mg}  File Name: {fname}, Error Type: {exc_type}, Function Name: {function_name},  Line Number: {exc_tb.tb_lineno} ")        
               
 #*************** Not completed, will do later *********************
 def state_supreme_court(all_state_supreme_court_elections):       
@@ -1023,7 +1061,7 @@ def state_supreme_court(all_state_supreme_court_elections):
 
                         scrape_voteboxes(state_name, election_year, voteboxes)
 
-def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=''):
+def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office='', city='', category=''):
     # print('Into the scrape voteboxes')
     global all_candidate_urls
     general_election_id = 0
@@ -1036,7 +1074,7 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
 
     for votebox in voteboxes:
         try:           
-            sub_election_id = 0
+            sub_election_id = 0            
             result_text = votebox.find_element(By.XPATH, ".//p[@class='results_text']").text.strip()            
             # election_date = str.split(result_text,'on')[-1].replace('.','').strip()
             election_date = str.split(result_text,'on')[-1].split('.')[0].strip()
@@ -1055,6 +1093,12 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
                 if office == 'Governor':
                     if 'lieutenant' in election_name.lower():
                         office = 'Lieutenant Governor'  
+
+                if category == 'municipal':
+                    print("city: ", city)
+                    sub_office = election_name.lower().split(office.lower())[-1].strip().title()
+                    print('Municipal sub_office = ',sub_office)
+                    
 
                 if special_election:  
                     name_arr = election_name.split(' ') 
@@ -1113,15 +1157,17 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
                 # if election_type == 'general':
                 if 'general' in election_type:
                     print(f"General Election: ,state_name={state_name}, office={office}, sub_office={sub_office}, election_type={election_type}, election_name={election_name}, election_date={str(election_date_object.date())}")
-                    logging.info(f"General Election: ,state_name={state_name}, office={office}, sub_office={sub_office}, election_type={election_type}, election_name={election_name}, election_date={str(election_date_object.date())}")
 
-                    general_election_id = insert_into_election(conn, state_name, office, sub_office, election_type, election_name, str(election_date_object.date()))
+                    logging.info(f"General Election: ,state_name={state_name}, office={office}, sub_office={sub_office}, election_type={election_type}, election_name={election_name}, election_date={str(election_date_object.date())}")
+                    
+                    general_election_id = insert_into_election(conn, state_name, office, sub_office, election_type, election_name, str(election_date_object.date()), city)
+                    
                     # print('General Election ID in Table: ', general_election_id)
                 else: 
                     print(f"Other Election: ,general_election_id = {general_election_id}, state_name={state_name}, office={office}, sub_office={sub_office}, election_type={election_type}, party= {party}, election_name={election_name}, election_date={str(election_date_object.date())}")
                     logging.info(f"Other Election: ,general_election_id = {general_election_id}, state_name={state_name}, office={office}, sub_office={sub_office}, election_type={election_type}, party= {party}, election_name={election_name}, election_date={str(election_date_object.date())}")
 
-                    sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, office, sub_office, election_type, party, election_name, str(election_date_object.date()))
+                    sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, office, sub_office, election_type, party, election_name, str(election_date_object.date()), city)
                     # print('Primary Election ID in Table: ', sub_election_id) 
 
                 
@@ -1176,8 +1222,18 @@ def candidate_info(candidate_url, election_name, election_date, incumbent = ''):
         driver_candidate_info.get(candidate_url)
         total_urls += 1
         logging.info(f"URL to scrape (candidate information) = {candidate_url}") 
-        
-        info_box = driver_candidate_info.find_element(By.XPATH, "//div[@class='infobox person']")
+        info_box = None
+        for _ in range(10):
+            try:
+                info_box = driver_candidate_info.find_element(By.XPATH, "//div[@class='infobox person']")                
+            except:
+                pass
+            if info_box is None:
+                 driver_candidate_info.get(candidate_url)
+                 time.sleep(1) 
+            else:
+                break
+
         # print("*"*70)
         name = info_box.find_element(By.XPATH, "./div[1]").text
         # print("Name = ",name)
