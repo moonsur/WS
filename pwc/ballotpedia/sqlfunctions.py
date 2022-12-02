@@ -133,7 +133,7 @@ def update_candidate(conn, photo_url, party, incumbent, prior_offices, current_o
     try:
         cur = conn.cursor()
         now = str(datetime.now(timezone.utc))
-        sql = """UPDATE candidate SET photo_url = %s, party = %s, incumbent = %s, prior_offices = %s, current_office = %s, profession = %s, updated = %s)
+        sql = """UPDATE candidate SET photo_url = %s, party = %s, incumbent = %s, prior_offices = %s, current_office = %s, profession = %s, updated = %s
                 WHERE id = %s;"""
         values = (photo_url, party, incumbent, prior_offices, current_office, profession, now, candidate_id)         
         cur.execute(sql, values)
@@ -141,29 +141,35 @@ def update_candidate(conn, photo_url, party, incumbent, prior_offices, current_o
         # commit the changes to the database
         conn.commit()
         cur.close()
+        logging.info(f"&&&=> Candidate update succesfully with id = {candidate_id}")
         return True
+    except (Exception, psycopg2.DatabaseError) as error:        
+        print(error)
+        logging.error(f"Function: update_candidate. Error: {error}") 
+        return False
+
+def insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type):
+    try:
+        cur = conn.cursor()
+        now = str(datetime.now(timezone.utc))
+        if 'general' in election_type:
+            sql = """INSERT INTO election_result(candidate_id, vote_percentage, vote_number, election_id, created)
+                    VALUES(%s,%s,%s,%s,%s) RETURNING id;"""
+            values = (candidate_id, vote_percentage, vote_number, general_election_id, now)
+        else:
+            sql = """INSERT INTO election_result(candidate_id, vote_percentage, vote_number, sub_election_id, created)
+                    VALUES(%s,%s,%s,%s,%s) RETURNING id;"""
+            values = (candidate_id, vote_percentage, vote_number, sub_election_id, now)           
+        cur.execute(sql, values)
+        # get the generated id back
+        election_result_id = cur.fetchone()[0]    
+        # commit the changes to the database
+        conn.commit()
+        cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
         return False
         print(error)
-        logging.error(f"Function: update_candidate. Error: {error}") 
-
-def insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type):
-    cur = conn.cursor()
-    now = str(datetime.now(timezone.utc))
-    if 'general' in election_type:
-        sql = """INSERT INTO election_result(candidate_id, vote_percentage, vote_number, election_id, created)
-                VALUES(%s,%s,%s,%s,%s) RETURNING id;"""
-        values = (candidate_id, vote_percentage, vote_number, general_election_id, now)
-    else:
-        sql = """INSERT INTO election_result(candidate_id, vote_percentage, vote_number, sub_election_id, created)
-                VALUES(%s,%s,%s,%s,%s) RETURNING id;"""
-        values = (candidate_id, vote_percentage, vote_number, sub_election_id, now)           
-    cur.execute(sql, values)
-    # get the generated id back
-    election_result_id = cur.fetchone()[0]    
-    # commit the changes to the database
-    conn.commit()
-    cur.close()
+        logging.error(f"Function: insert_into_election_result. Error: {error}")     
 
 def insert_into_education(conn, degree, institute, candidate_id):
     cur = conn.cursor()

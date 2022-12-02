@@ -32,7 +32,8 @@ options = webdriver.ChromeOptions()
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 # Global Varibales 
-all_candidate_urls = []
+# all_candidate_urls = []
+all_candidate_urls = {}
 candidate_urls_in_db = {}
 driver_election_info = None
 driver_candidate_info = None 
@@ -135,13 +136,13 @@ def state_elections(all_state_urls):
                
         candidate_urls_in_db = get_all_candidate_url(conn)
 
-        # us_senate(all_us_senate_elections)
+        us_senate(all_us_senate_elections)
         # us_house(all_us_house_elections)
         # congress_special_election(all_congress_special_elections)
         # governor(all_governor_elections)
         # state_supreme_court(all_state_supreme_court_elections)
         # school_boards(all_school_board_elections)
-        municipal_government(all_municipal_government_urls)
+        # municipal_government(all_municipal_government_urls)
         # state_executive(all_state_executive_elections)
         # state_senate(all_state_senate_elections)
         # state_house(all_state_house_elections)
@@ -408,10 +409,12 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                     candidate_id = 0
                     if candidate_urls[i] in all_candidate_urls:
                         # print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
-                        candidate_id = get_candidate_id(conn, candidate_urls[i])
+                        # candidate_id = get_candidate_id(conn, candidate_urls[i])
+                        candidate_id = all_candidate_urls[candidate_urls[i]] 
                     else: 
                         candidate_id = candidate_info(candidate_urls[i], general_election_name, general_election_date_obj, incumbents[i])
-                        all_candidate_urls.append(candidate_urls[i])
+                        # all_candidate_urls.append(candidate_urls[i])
+                        all_candidate_urls[candidate_urls[i]] = candidate_id
                     if candidate_id != 0:
                         vote_percentage = -1
                         vote_number = -1
@@ -503,10 +506,12 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                                 candidate_id = 0
                                 if candidate_urls[j] in all_candidate_urls:
                                     # print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
-                                    candidate_id = get_candidate_id(conn, candidate_urls[j])
+                                    # candidate_id = get_candidate_id(conn, candidate_urls[j])
+                                    candidate_id = all_candidate_urls[candidate_urls[j]]
                                 else: 
                                     candidate_id = candidate_info(candidate_urls[j], primary_runoff_election_name, primary_runoff_election_date_obj, incumbents[j])
-                                    all_candidate_urls.append(candidate_urls[j])
+                                    # all_candidate_urls.append(candidate_urls[j])
+                                    all_candidate_urls[candidate_urls[j]] = candidate_id
 
                                 if candidate_id != 0:
                                     vote_percentage = -1
@@ -605,10 +610,12 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                                 candidate_id = 0
                                 if candidate_urls[j] in all_candidate_urls:
                                     # print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
-                                    candidate_id = get_candidate_id(conn, candidate_urls[j])
+                                    # candidate_id = get_candidate_id(conn, candidate_urls[j])
+                                    candidate_id = all_candidate_urls[candidate_urls[j]]
                                 else: 
                                     candidate_id = candidate_info(candidate_urls[j], primary_election_name, primary_election_date_obj, incumbents[j])
-                                    all_candidate_urls.append(candidate_urls[j]) 
+                                    # all_candidate_urls.append(candidate_urls[j]) 
+                                    all_candidate_urls[candidate_urls[j]] = candidate_id
 
                                 if candidate_id != 0:
                                     vote_percentage = -1
@@ -799,10 +806,12 @@ def state_executive(all_state_executive_elections):
                                         candidate_id = 0
                                         if candidate_urls[i] in all_candidate_urls:
                                             print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
-                                            candidate_id = get_candidate_id(conn, candidate_urls[i])
+                                            # candidate_id = get_candidate_id(conn, candidate_urls[i])
+                                            candidate_id = all_candidate_urls[candidate_urls[i]] 
                                         else: 
                                             candidate_id = candidate_info(candidate_urls[i], sub_election_name, election_date_obj, incumbents[i])
-                                            all_candidate_urls.append(candidate_urls[i])
+                                            # all_candidate_urls.append(candidate_urls[i])
+                                            all_candidate_urls[candidate_urls[i]] = candidate_id
 
                                         if candidate_id != 0:
                                             vote_percentage = -1
@@ -903,10 +912,12 @@ def state_executive(all_state_executive_elections):
                                 for i in range(len(candidate_urls)):
                                     if candidate_urls[i] in all_candidate_urls:
                                         print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
-                                        candidate_id = get_candidate_id(conn, candidate_urls[i])
+                                        # candidate_id = get_candidate_id(conn, candidate_urls[i])
+                                        candidate_id = all_candidate_urls[candidate_urls[i]]
                                     else: 
                                         candidate_id = candidate_info(candidate_urls[i], election_name, election_date_obj, incumbents[i])
-                                        all_candidate_urls.append(candidate_urls[i])
+                                        # all_candidate_urls.append(candidate_urls[i])
+                                        all_candidate_urls[candidate_urls[i]] = candidate_id
 
                                     vote_percentage = -1
                                     vote_number = -1
@@ -1192,10 +1203,12 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
                         print('Candidate URL = ', candidate_url)
                         if candidate_url in all_candidate_urls:
                             # print("@@@@@@@@@@@@ This Candidate is already in List @@@@@@@@@@@ ")
-                            candidate_id = get_candidate_id(conn, candidate_url)
+                            # candidate_id = get_candidate_id(conn, candidate_url)
+                            candidate_id = all_candidate_urls[candidate_url]
                         else:
                             candidate_id = candidate_info(candidate_url, election_name, election_date_object)
-                            all_candidate_urls.append(candidate_url)
+                            # all_candidate_urls.append(candidate_url)
+                            all_candidate_urls[candidate_url] = candidate_id
                     except:
                         continue        
                     try:
@@ -1304,7 +1317,8 @@ def candidate_info(candidate_url, election_name, election_date, incumbent = ''):
     #************** Insert into candidate Table **********
     if candidate_update:
         candidate_id = candidate_urls_in_db[candidate_url]
-        update_candidate(conn, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_id)       
+        update_candidate(conn, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_id) 
+        logging.info(f"$$$=> Candidate Update called with the candidate id = {candidate_id}")      
     else:    
         candidate_id = insert_into_candidate(conn, name, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_url)
 
