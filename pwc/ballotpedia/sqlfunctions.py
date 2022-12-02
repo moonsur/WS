@@ -4,6 +4,26 @@ import logging
 import sys
 
 
+def get_election_id(conn, state_name, office, sub_office, election_type, election_date):
+    try:
+        cur = conn.cursor()
+        election_id = 0
+        select_sql = f"""SELECT id FROM election WHERE state=%s and office=%s and sub_office=%s and election_type=%s and election_date=%s""" 
+        select_values = (state_name, office, sub_office, election_type, election_date)
+        cur.execute(select_sql,select_values)
+        fetch_val = cur.fetchone()
+        if fetch_val is not None:
+            election_id = fetch_val[0]  
+        cur.close()
+        if election_id == 0:
+            logging.info(f"=======> Election not found")
+        else:
+            logging.info(f"=======> Election found, id = {election_id}")    
+        return election_id
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+        logging.error(f"Function: get_election_id. Error: {error}") 
+
 def insert_into_election(conn, state_name, office, sub_office, election_type, election_name, election_date, city=''):
     logging.info(f"Function: insert_into_election, values:[state_name:{state_name}, office:{office}, sub_office:{sub_office}, election_type:{election_type}, election_name:{election_name}, election_date:{election_date}, city:{city}]")
     try:
@@ -60,20 +80,72 @@ def insert_into_sub_election(conn, general_election_id, state_name, office, sub_
         logging.error(f"Function: insert_into_sub_election. Error: {error}")     
 
 
-def insert_into_candidate(conn, name, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_url):
+
+def get_candidate_id(conn, candidate_url):
     cur = conn.cursor()
-    now = str(datetime.now(timezone.utc))
-    sql = """INSERT INTO candidate(name, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_url,created)
-             VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
-    values = (name, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_url, now)         
-    cur.execute(sql, values)
-    # get the generated id back
-    candidate_id = cur.fetchone()[0]    
-    # commit the changes to the database
-    conn.commit()
+    candidate_id = 0
+    select_sql = f"""SELECT id FROM candidate WHERE candidate_url=%s""" 
+    select_values = (candidate_url,)
+    cur.execute(select_sql,select_values)
+    fetch_val = cur.fetchone()
+    if fetch_val is not None:
+        candidate_id = fetch_val[0]  
     cur.close()
     return candidate_id
 
+def get_all_candidate_url(conn):
+    try:
+        cur = conn.cursor()    
+        select_sql = f"""SELECT id, candidate_url FROM candidate""" 
+        
+        cur.execute(select_sql)
+        fetch_values = cur.fetchall()
+        print('query-- len: ', len(fetch_values))
+        # print(fetch_values)
+        ret_dict = {row[1]: row[0] for row in fetch_values} 
+        cur.close()
+        return ret_dict 
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+        logging.error(f"Function: get_all_candidate_url. Error: {error}")   
+
+
+def insert_into_candidate(conn, name, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_url):
+    try:
+        cur = conn.cursor()
+        now = str(datetime.now(timezone.utc))
+        sql = """INSERT INTO candidate(name, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_url,created)
+                VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id;"""
+        values = (name, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_url, now)         
+        cur.execute(sql, values)
+        # get the generated id back
+        candidate_id = cur.fetchone()[0]    
+        # commit the changes to the database
+        conn.commit()
+        cur.close()
+        return candidate_id
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+        logging.error(f"Function: insert_into_candidate. Error: {error}")    
+
+
+def update_candidate(conn, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_id):
+    try:
+        cur = conn.cursor()
+        now = str(datetime.now(timezone.utc))
+        sql = """UPDATE candidate SET photo_url = %s, party = %s, incumbent = %s, prior_offices = %s, current_office = %s, profession = %s, updated = %s)
+                WHERE id = %s;"""
+        values = (photo_url, party, incumbent, prior_offices, current_office, profession, now, candidate_id)         
+        cur.execute(sql, values)
+         
+        # commit the changes to the database
+        conn.commit()
+        cur.close()
+        return True
+    except (Exception, psycopg2.DatabaseError) as error:
+        return False
+        print(error)
+        logging.error(f"Function: update_candidate. Error: {error}") 
 
 def insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type):
     cur = conn.cursor()
@@ -125,19 +197,6 @@ def insert_into_contact(conn, channel_name, channel_url, candidate_id):
     cur.close()
     
 
-
-
-def get_candidate_id(conn, candidate_url):
-    cur = conn.cursor()
-    candidate_id = 0
-    select_sql = f"""SELECT id FROM candidate WHERE candidate_url=%s""" 
-    select_values = (candidate_url,)
-    cur.execute(select_sql,select_values)
-    fetch_val = cur.fetchone()
-    if fetch_val is not None:
-        candidate_id = fetch_val[0]  
-    cur.close()
-    return candidate_id
 
 
   ###################################################################################

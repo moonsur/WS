@@ -33,6 +33,7 @@ options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 # Global Varibales 
 all_candidate_urls = []
+candidate_urls_in_db = {}
 driver_election_info = None
 driver_candidate_info = None 
 total_urls = 0
@@ -126,11 +127,14 @@ def state_elections(all_state_urls):
     
     try:
         global conn
+        global candidate_urls_in_db
         # read connection parameters
         params = config()         
         # connect to the PostgreSql Server        
         conn = psycopg2.connect(**params)
                
+        candidate_urls_in_db = get_all_candidate_url(conn)
+
         # us_senate(all_us_senate_elections)
         # us_house(all_us_house_elections)
         # congress_special_election(all_congress_special_elections)
@@ -395,7 +399,9 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                 # print('Election Name : ', general_election_name)        
                 # print('Incumbents : ', incumbents)        
                 # print('Candidate Urls : ', candidate_urls)
-                general_election_id = insert_into_election(conn, state_name, office, sub_office, election_type, general_election_name, str(general_election_date_obj.date()))
+                general_election_id = get_election_id(conn, state_name, office, sub_office, election_type, str(general_election_date_obj.date()))
+                if general_election_id == 0:
+                    general_election_id = insert_into_election(conn, state_name, office, sub_office, election_type, general_election_name, str(general_election_date_obj.date()))
                 g_id_dict[sub_office] = general_election_id
                 sub_election_id = 0
                 for i in range(len(candidate_urls)):
@@ -777,7 +783,9 @@ def state_executive(all_state_executive_elections):
                                                 
                                     #Insert data into election table
                                     if election_type == 'general':
-                                        general_election_id = insert_into_election(conn, state_name_se, election_title, sub_office_name, election_type, sub_election_name, str(election_date_obj.date()))
+                                        general_election_id = get_election_id(conn, state_name_se, election_title, sub_office_name, election_type, str(election_date_obj.date()))
+                                        if general_election_id == 0:
+                                            general_election_id = insert_into_election(conn, state_name_se, election_title, sub_office_name, election_type, sub_election_name, str(election_date_obj.date()))
                                         print('General Election ID in Table: ', general_election_id)
                                     else: 
                                         if election_date_obj is not None:
@@ -879,7 +887,9 @@ def state_executive(all_state_executive_elections):
                                     party = 'republican'         
                                 #Insert data into election table
                                 if election_type == 'general':
-                                    general_election_id = insert_into_election(conn, state_name_se, election_title, sub_office_name, election_type, election_name, str(election_date_obj.date()))
+                                    general_election_id = get_election_id(conn, state_name_se, election_title, sub_office_name, election_type, str(election_date_obj.date()))
+                                    if general_election_id == 0:
+                                        general_election_id = insert_into_election(conn, state_name_se, election_title, sub_office_name, election_type, election_name, str(election_date_obj.date()))
                                     print('General Election ID in Table: ', general_election_id)
                                 else: 
                                     if election_date_obj is not None:
@@ -1159,8 +1169,10 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
                     print(f"General Election: ,state_name={state_name}, office={office}, sub_office={sub_office}, election_type={election_type}, election_name={election_name}, election_date={str(election_date_object.date())}")
 
                     logging.info(f"General Election: ,state_name={state_name}, office={office}, sub_office={sub_office}, election_type={election_type}, election_name={election_name}, election_date={str(election_date_object.date())}")
-                    
-                    general_election_id = insert_into_election(conn, state_name, office, sub_office, election_type, election_name, str(election_date_object.date()), city)
+### check general election is already exist or not                    
+                    general_election_id = get_election_id(conn, state_name, office, sub_office, election_type, election_date)
+                    if general_election_id == 0:                    
+                        general_election_id = insert_into_election(conn, state_name, office, sub_office, election_type, election_name, str(election_date_object.date()), city)
                     
                     # print('General Election ID in Table: ', general_election_id)
                 else: 
@@ -1216,7 +1228,12 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
 def candidate_info(candidate_url, election_name, election_date, incumbent = ''):
     global total_urls  
     function_name = 'candidate_info'  
+
     # print("%%%%%%%%%%%%%%%%%%%% Inside Candidate Info %%%%%%%%%%%%%%%%")
+    if candidate_url in candidate_urls_in_db:
+        candidate_update = True
+    else:
+        candidate_update = False 
 
     try:   
         driver_candidate_info.get(candidate_url)
@@ -1285,7 +1302,11 @@ def candidate_info(candidate_url, election_name, election_date, incumbent = ''):
         pass
     
     #************** Insert into candidate Table **********
-    candidate_id = insert_into_candidate(conn, name, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_url)
+    if candidate_update:
+        candidate_id = candidate_urls_in_db[candidate_url]
+        update_candidate(conn, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_id)       
+    else:    
+        candidate_id = insert_into_candidate(conn, name, photo_url, party, incumbent, prior_offices, current_office, profession, candidate_url)
 
     educations = info_box.find_elements(By.XPATH, ".//div[contains(.,'Education') and contains(@class,'widget-row value-only')]")
     if len(educations) > 0:
@@ -1302,7 +1323,10 @@ def candidate_info(candidate_url, election_name, election_date, incumbent = ''):
                         institute =  education_arr[1].strip()
                         # print('Educaion Degree = ', degree)
                         # print('Educaion Institute = ', institute)
-                        insert_into_education(conn, degree, institute, candidate_id)
+                        if candidate_update:
+                            pass  #### have to write update code
+                        else:
+                            insert_into_education(conn, degree, institute, candidate_id)
             else:
                 #  print('Education information not found!')  
                  pass           
