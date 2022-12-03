@@ -499,8 +499,15 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                             if sub_office in g_id_dict.keys():
                                 general_election_id = g_id_dict[sub_office]
                             else:
-                                general_election_id = 0   
-                            sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, office, sub_office, election_type, party, primary_runoff_election_name, str(primary_runoff_election_date_obj.date()))
+                                general_election_id = 0 
+
+                            sub_election_id_gen_id = get_sub_election_id(conn, state_name, office, sub_office, election_type, party,  str(primary_runoff_election_date_obj.date()))  
+                            if sub_election_id_gen_id[0] != 0:
+                                sub_election_id = sub_election_id_gen_id[0]
+                                if sub_election_id_gen_id[1] != general_election_id:
+                                    update_sub_election(conn, sub_election_id, general_election_id)                                
+                            else:    
+                                sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, office, sub_office, election_type, party, primary_runoff_election_name, str(primary_runoff_election_date_obj.date()))
                             
                             for j in range(len(candidate_urls)):
                                 candidate_id = 0
@@ -605,7 +612,13 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                             else:
                                 general_election_id = 0 
                             
-                            sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, office, sub_office, election_type, party, primary_election_name, str(primary_election_date_obj.date()))
+                            sub_election_id_gen_id = get_sub_election_id(conn, state_name, office, sub_office, election_type, party,  str(primary_election_date_obj.date()))  
+                            if sub_election_id_gen_id[0] != 0:
+                                sub_election_id = sub_election_id_gen_id[0]
+                                if sub_election_id_gen_id[1] != general_election_id:
+                                    update_sub_election(conn, sub_election_id, general_election_id)                                
+                            else: 
+                                sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, office, sub_office, election_type, party, primary_election_name, str(primary_election_date_obj.date()))
                             for j in range(len(candidate_urls)):
                                 candidate_id = 0
                                 if candidate_urls[j] in all_candidate_urls:
@@ -798,8 +811,15 @@ def state_executive(all_state_executive_elections):
                                         if election_date_obj is not None:
                                             election_date_str = str(election_date_obj.date()) 
                                         else:
-                                            election_date_str = ''                    
-                                        sub_election_id = insert_into_sub_election(conn, general_election_id, state_name_se, election_title, sub_office_name, election_type, party, sub_election_name, election_date_str)
+                                            election_date_str = '' 
+
+                                        sub_election_id_gen_id = get_sub_election_id(conn, state_name_se, election_title, sub_office_name, election_type, party,  election_date_str)  
+                                        if sub_election_id_gen_id[0] != 0:
+                                            sub_election_id = sub_election_id_gen_id[0]
+                                            if sub_election_id_gen_id[1] != general_election_id:
+                                                update_sub_election(conn, sub_election_id, general_election_id) 
+                                        else:                        
+                                            sub_election_id = insert_into_sub_election(conn, general_election_id, state_name_se, election_title, sub_office_name, election_type, party, sub_election_name, election_date_str)
                                         print('Primary Election ID in Table: ', sub_election_id) 
 
                                     for i in range(len(candidate_urls)):
@@ -904,8 +924,15 @@ def state_executive(all_state_executive_elections):
                                     if election_date_obj is not None:
                                             election_date_str = str(election_date_obj.date()) 
                                     else:
-                                        election_date_str = ''                    
-                                    sub_election_id = insert_into_sub_election(conn, general_election_id, state_name_se, election_title, sub_office_name, election_type, party, election_name, election_date_str)
+                                        election_date_str = '' 
+
+                                    sub_election_id_gen_id = get_sub_election_id(conn, state_name_se, election_title, sub_office_name, election_type, party,  election_date_str)  
+                                    if sub_election_id_gen_id[0] != 0:
+                                        sub_election_id = sub_election_id_gen_id[0]
+                                        if sub_election_id_gen_id[1] != general_election_id:
+                                            update_sub_election(conn, sub_election_id, general_election_id) 
+                                    else:                       
+                                        sub_election_id = insert_into_sub_election(conn, general_election_id, state_name_se, election_title, sub_office_name, election_type, party, election_name, election_date_str)
                                     print('Primary Election ID in Table: ', sub_election_id)
 
 
@@ -1190,7 +1217,13 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
                     print(f"Other Election: ,general_election_id = {general_election_id}, state_name={state_name}, office={office}, sub_office={sub_office}, election_type={election_type}, party= {party}, election_name={election_name}, election_date={str(election_date_object.date())}")
                     logging.info(f"Other Election: ,general_election_id = {general_election_id}, state_name={state_name}, office={office}, sub_office={sub_office}, election_type={election_type}, party= {party}, election_name={election_name}, election_date={str(election_date_object.date())}")
 
-                    sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, office, sub_office, election_type, party, election_name, str(election_date_object.date()), city)
+                    sub_election_id_gen_id = get_sub_election_id(conn, state_name, office, sub_office, election_type, party,  str(election_date_object.date()))  
+                    if sub_election_id_gen_id[0] != 0:
+                        sub_election_id = sub_election_id_gen_id[0]
+                        if sub_election_id_gen_id[1] != general_election_id:
+                            update_sub_election(conn, sub_election_id, general_election_id) 
+                    else:
+                        sub_election_id = insert_into_sub_election(conn, general_election_id, state_name, office, sub_office, election_type, party, election_name, str(election_date_object.date()), city)
                     # print('Primary Election ID in Table: ', sub_election_id) 
 
                 
@@ -1327,6 +1360,9 @@ def candidate_info(candidate_url, election_name, election_date, incumbent = ''):
         for education in educations:
             if education.text.strip().lower() == 'education':
                 education_infomaions = education.find_elements(By.XPATH, ".//following-sibling::div")
+                if candidate_update:
+                    educations_info = get_educations_by_candidate_id(conn, candidate_id)
+
                 for edu_info in education_infomaions:
                     if 'value-only' in edu_info.get_attribute('class'):
                         break
@@ -1338,7 +1374,15 @@ def candidate_info(candidate_url, election_name, election_date, incumbent = ''):
                         # print('Educaion Degree = ', degree)
                         # print('Educaion Institute = ', institute)
                         if candidate_update:
-                            pass  #### have to write update code
+                            # educations_info = get_educations_by_candidate_id(conn, candidate_id)
+                            if len(educations_info) > 0:
+                                logging.info(f"$$$==>> Eduaction arr: {educations_info}")
+                                if (degree, institute) in educations_info:
+                                    logging.info(f"%%%===> Education is already in database with degree: {degree} and institute: {institute}")
+                                else:
+                                    insert_into_education(conn, degree, institute, candidate_id)
+                            else:
+                                insert_into_education(conn, degree, institute, candidate_id)            
                         else:
                             insert_into_education(conn, degree, institute, candidate_id)
             else:
@@ -1353,12 +1397,25 @@ def candidate_info(candidate_url, election_name, election_date, incumbent = ''):
         contact_header = info_box.find_element(By.XPATH, ".//div[contains(@class,'value-only') and contains(.,'Contact')]")
         # print('conact header = ', contact_header.text)
         contacts = contact_header.find_elements(By.XPATH, ".//following-sibling::div[contains(@class,'white')]//a")
-               
+        if candidate_update:
+            contacts_info = get_contacts_by_candidate_id(conn, candidate_id)       
         for contact in contacts:
             channel_name = contact.text.strip()
             channel_url = contact.get_attribute('href')
             # print(contact.text,' = ', contact.get_attribute('href'))
-            insert_into_contact(conn, channel_name, channel_url, candidate_id)
+            if candidate_update:
+                # contacts_info = get_contacts_by_candidate_id(conn, candidate_id)
+                logging.info(f"$$$==>> Contact arr: {contacts_info}")
+                if len(contacts_info) > 0:
+                    if (channel_name, channel_url) in contacts_info:
+                        logging.info(f"%%%===> Contact is already in database with channel name: {channel_name} and channel url: {channel_url}")
+                    else: 
+                        insert_into_contact(conn, channel_name, channel_url, candidate_id)
+                else:
+                    insert_into_contact(conn, channel_name, channel_url, candidate_id)            
+                        
+            else:
+                insert_into_contact(conn, channel_name, channel_url, candidate_id)
     except:
         # print('contact information not found')
         pass
