@@ -197,6 +197,28 @@ def update_candidate(conn, photo_url, party, incumbent, prior_offices, current_o
         logging.error(f"Function: update_candidate. Error: {error}") 
         return False
 
+def get_election_result_id(conn, candidate_id, general_election_id, sub_election_id, election_type):
+    try:
+        cur = conn.cursor()
+        election_result_id = 0
+        if 'general' in election_type:
+            sql = f"""SELECT id FROM election_result WHERE candidate_id=%s and election_id=%s;""" 
+            values = (candidate_id,general_election_id)
+        else:
+            sql = f"""SELECT id FROM election_result WHERE candidate_id=%s and sub_election_id=%s;""" 
+            values = (candidate_id, sub_election_id)
+
+        cur.execute(sql,values)
+        fetch_val = cur.fetchone()
+        if fetch_val is not None:
+            election_result_id = fetch_val[0]  
+        cur.close()
+        return election_result_id
+    except (Exception, psycopg2.DatabaseError) as error:        
+        print(error)
+        logging.error(f"Function: get_election_result_id. Error: {error}") 
+        
+
 def insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type):
     try:
         cur = conn.cursor()
@@ -221,6 +243,25 @@ def insert_into_election_result(conn, candidate_id, vote_percentage, vote_number
         return False    
 
 
+
+def update_election_result(conn, vote_percentage, vote_number, election_result_id):
+    try:
+        cur = conn.cursor()
+        now = str(datetime.now(timezone.utc))
+        sql = """UPDATE election_result SET vote_percentage = %s, vote_number = %s, updated = %s WHERE id = %s;"""
+        values = (vote_percentage, vote_number, election_result_id)         
+        cur.execute(sql, values)
+         
+        # commit the changes to the database
+        conn.commit()
+        cur.close()
+        logging.info(f"&&&=> Election result update succesfully with id = {election_result_id}")
+        return True
+    except (Exception, psycopg2.DatabaseError) as error:        
+        print(error)
+        logging.error(f"Function: update_election_result. Error: {error}") 
+        return False
+
 def get_educations_by_candidate_id(conn, candidate_id):
     try:
         cur = conn.cursor()
@@ -229,7 +270,7 @@ def get_educations_by_candidate_id(conn, candidate_id):
         values = (candidate_id,)
         cur.execute(sql,values)
         edu_info = cur.fetchall()
-        
+
         cur.close()
         return edu_info
     except (Exception, psycopg2.DatabaseError) as error:        

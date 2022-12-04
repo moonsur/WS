@@ -418,7 +418,11 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                     if candidate_id != 0:
                         vote_percentage = -1
                         vote_number = -1
-                        insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type)
+
+                        election_result_id = get_election_result_id(conn, candidate_id, general_election_id, sub_election_id, election_type)
+                        if election_result_id == 0:                            
+                            insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type)
+                            
             logging.info(f"General Election ID Dictionary : {g_id_dict}") 
         else:
             logging.info(f"@#$%^&*()_+= Function: {function_name}, General tab not found. URL = {election_url}  ") 
@@ -523,7 +527,10 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                                 if candidate_id != 0:
                                     vote_percentage = -1
                                     vote_number = -1
-                                    insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type)    
+                                    
+                                    election_result_id = get_election_result_id(conn, candidate_id, general_election_id, sub_election_id, election_type)
+                                    if election_result_id == 0:
+                                        insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type)    
 
                     except:
                         print("Primary runoff Election, somthing went wrong into candidate collection on column : ", i)                    
@@ -633,7 +640,10 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                                 if candidate_id != 0:
                                     vote_percentage = -1
                                     vote_number = -1
-                                    insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type)           
+
+                                    election_result_id = get_election_result_id(conn, candidate_id, general_election_id, sub_election_id, election_type)
+                                    if election_result_id == 0:
+                                        insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type)           
                     except:
                         print("Primary Election, somthing went wrong into candidate collection on column : ", i) 
                         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -836,7 +846,9 @@ def state_executive(all_state_executive_elections):
                                         if candidate_id != 0:
                                             vote_percentage = -1
                                             vote_number = -1
-                                            insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type) 
+                                            election_result_id = get_election_result_id(conn, candidate_id, general_election_id, sub_election_id, election_type)
+                                            if election_result_id == 0:
+                                                insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type) 
                                 
                                 else:
                                     flag = 0
@@ -950,7 +962,9 @@ def state_executive(all_state_executive_elections):
                                     vote_number = -1
 
                                     if candidate_id != 0:
-                                        insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type)    
+                                        election_result_id = get_election_result_id(conn, candidate_id, general_election_id, sub_election_id, election_type)
+                                        if election_result_id == 0:
+                                            insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type)    
                             
                             else:
                                 flag = 0
@@ -1258,8 +1272,11 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
                     if candidate_id != 0:
                         print(f"Election result: candidate_id={candidate_id}, vote_percentage={vote_percentage}, vote_number={vote_number}, general_election_id={general_election_id}, sub_election_id={sub_election_id}, election_type={election_type}")
                         logging.info(f"Election result: candidate_id={candidate_id}, vote_percentage={vote_percentage}, vote_number={vote_number}, general_election_id={general_election_id}, sub_election_id={sub_election_id}, election_type={election_type}")
-
-                        insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type)      
+                        election_result_id = get_election_result_id(conn, candidate_id, general_election_id, sub_election_id, election_type)
+                        if election_result_id == 0:
+                            insert_into_election_result(conn, candidate_id, vote_percentage, vote_number, general_election_id, sub_election_id, election_type) 
+                        else:
+                            update_election_result(conn, vote_percentage, vote_number, election_result_id)         
 
             # break
         except Exception as e:
@@ -1403,8 +1420,7 @@ def candidate_info(candidate_url, election_name, election_date, incumbent = ''):
             channel_name = contact.text.strip()
             channel_url = contact.get_attribute('href')
             # print(contact.text,' = ', contact.get_attribute('href'))
-            if candidate_update:
-                # contacts_info = get_contacts_by_candidate_id(conn, candidate_id)
+            if candidate_update:                
                 logging.info(f"$$$==>> Contact arr: {contacts_info}")
                 if len(contacts_info) > 0:
                     if (channel_name, channel_url) in contacts_info:
