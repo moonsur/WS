@@ -21,6 +21,8 @@ def get_election_id(conn, state_name, office, sub_office, election_type, electio
             logging.info(f"=======> Election found, id = {election_id}")    
         return election_id
     except (Exception, psycopg2.DatabaseError) as error:
+        cur.close()
+        conn.rollback()
         print(error)
         logging.error(f"Function: get_election_id. Error: {error}") 
 
@@ -40,6 +42,8 @@ def insert_into_election(conn, state_name, office, sub_office, election_type, el
         cur.close()
         return general_election_id
     except (Exception, psycopg2.DatabaseError) as error:
+        cur.close()
+        conn.rollback()
         print(error)
         logging.error(f"Function: insert_into_election. Error: {error}")    
 
@@ -65,6 +69,8 @@ def get_sub_election_id(conn, state_name, office, sub_office, election_type, par
             logging.info(f"=======> Sub Election found, id = {sub_election_id}")    
         return (sub_election_id,general_election_id)
     except (Exception, psycopg2.DatabaseError) as error:
+        cur.close()
+        conn.rollback()
         print(error)
         logging.error(f"Function: get_election_id. Error: {error}")
 
@@ -101,6 +107,8 @@ def insert_into_sub_election(conn, general_election_id, state_name, office, sub_
         cur.close()
         return sub_election_id
     except (Exception, psycopg2.DatabaseError) as error:
+        cur.close()
+        conn.rollback()
         print(error)
         logging.error(f"Function: insert_into_sub_election. Error: {error}")     
 
@@ -119,7 +127,9 @@ def update_sub_election(conn, sub_election_id, general_election_id):
         cur.close()
         logging.info(f"&&&=> Sub Election update succesfully with id = {sub_election_id}, general id = {general_election_id}")
         return True
-    except (Exception, psycopg2.DatabaseError) as error:        
+    except (Exception, psycopg2.DatabaseError) as error:
+        cur.close()
+        conn.rollback()        
         print(error)
         logging.error(f"Function: update_sub_election. Error: {error}") 
         return False
@@ -137,7 +147,9 @@ def get_candidate_id(conn, candidate_url):
             candidate_id = fetch_val[0]  
         cur.close()
         return candidate_id
-    except (Exception, psycopg2.DatabaseError) as error:        
+    except (Exception, psycopg2.DatabaseError) as error: 
+        cur.close()
+        conn.rollback()       
         print(error)
         logging.error(f"Function: get_candidate_id. Error: {error}") 
             
@@ -155,6 +167,8 @@ def get_all_candidate_url(conn):
         cur.close()
         return ret_dict 
     except (Exception, psycopg2.DatabaseError) as error:
+        cur.close()
+        conn.rollback()
         print(error)
         logging.error(f"Function: get_all_candidate_url. Error: {error}")   
 
@@ -174,6 +188,8 @@ def insert_into_candidate(conn, name, photo_url, party, incumbent, prior_offices
         cur.close()
         return candidate_id
     except (Exception, psycopg2.DatabaseError) as error:
+        cur.close()
+        conn.rollback()
         print(error)
         logging.error(f"Function: insert_into_candidate. Error: {error}")    
 
@@ -192,7 +208,9 @@ def update_candidate(conn, photo_url, party, incumbent, prior_offices, current_o
         cur.close()
         logging.info(f"&&&=> Candidate update succesfully with id = {candidate_id}")
         return True
-    except (Exception, psycopg2.DatabaseError) as error:        
+    except (Exception, psycopg2.DatabaseError) as error:   
+        cur.close()
+        conn.rollback()     
         print(error)
         logging.error(f"Function: update_candidate. Error: {error}") 
         return False
@@ -214,7 +232,9 @@ def get_election_result_id(conn, candidate_id, general_election_id, sub_election
             election_result_id = fetch_val[0]  
         cur.close()
         return election_result_id
-    except (Exception, psycopg2.DatabaseError) as error:        
+    except (Exception, psycopg2.DatabaseError) as error: 
+        cur.close()
+        conn.rollback()       
         print(error)
         logging.error(f"Function: get_election_result_id. Error: {error}") 
         
@@ -237,7 +257,9 @@ def insert_into_election_result(conn, candidate_id, vote_percentage, vote_number
         # commit the changes to the database
         conn.commit()
         cur.close()
-    except (Exception, psycopg2.DatabaseError) as error:        
+    except (Exception, psycopg2.DatabaseError) as error:  
+        cur.close()
+        conn.rollback()      
         print(error)
         logging.error(f"Function: insert_into_election_result. Error: {error}") 
         return False    
@@ -257,7 +279,9 @@ def update_election_result(conn, vote_percentage, vote_number, election_result_i
         cur.close()
         logging.info(f"&&&=> Election result update succesfully with id = {election_result_id}")
         return True
-    except (Exception, psycopg2.DatabaseError) as error:        
+    except (Exception, psycopg2.DatabaseError) as error: 
+        cur.close()
+        conn.rollback()       
         print(error)
         logging.error(f"Function: update_election_result. Error: {error}") 
         return False
@@ -273,7 +297,9 @@ def get_educations_by_candidate_id(conn, candidate_id):
 
         cur.close()
         return edu_info
-    except (Exception, psycopg2.DatabaseError) as error:        
+    except (Exception, psycopg2.DatabaseError) as error:  
+        cur.close()
+        conn.rollback()      
         print(error)
         logging.error(f"Function: get_educations_by_candidate_id. Error: {error}") 
         return False 
@@ -293,7 +319,9 @@ def insert_into_education(conn, degree, institute, candidate_id):
         # commit the changes to the database
         conn.commit()
         cur.close()
-    except (Exception, psycopg2.DatabaseError) as error:        
+    except (Exception, psycopg2.DatabaseError) as error: 
+        cur.close()
+        conn.rollback()       
         print(error)
         logging.error(f"Function: insert_into_education. Error: {error}") 
             
@@ -308,7 +336,9 @@ def get_contacts_by_candidate_id(conn, candidate_id):
         con_info = cur.fetchall()
         cur.close()
         return con_info
-    except (Exception, psycopg2.DatabaseError) as error:        
+    except (Exception, psycopg2.DatabaseError) as error:    
+        cur.close()
+        conn.rollback()    
         print(error)
         logging.error(f"Function: get_contacts_by_candidate_id. Error: {error}") 
         return False 
@@ -328,7 +358,9 @@ def insert_into_contact(conn, channel_name, channel_url, candidate_id):
         # commit the changes to the database
         conn.commit()
         cur.close()
-    except (Exception, psycopg2.DatabaseError) as error:        
+    except (Exception, psycopg2.DatabaseError) as error: 
+        cur.close()
+        conn.rollback()       
         print(error)
         logging.error(f"Function: insert_into_contact. Error: {error}")     
     
