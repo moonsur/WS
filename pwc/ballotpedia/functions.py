@@ -137,7 +137,7 @@ def state_elections(all_state_urls):
         candidate_urls_in_db = get_all_candidate_url(conn)
 
         us_senate(all_us_senate_elections)
-        # us_house(all_us_house_elections)
+        us_house(all_us_house_elections)
         # congress_special_election(all_congress_special_elections)
         # governor(all_governor_elections)
         # state_supreme_court(all_state_supreme_court_elections)
@@ -506,7 +506,7 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                                 general_election_id = 0 
 
                             sub_election_id_gen_id = get_sub_election_id(conn, state_name, office, sub_office, election_type, party,  str(primary_runoff_election_date_obj.date()))  
-                            if sub_election_id_gen_id[0] != 0:
+                            if sub_election_id_gen_id[0] != 0 and general_election_id != 0:
                                 sub_election_id = sub_election_id_gen_id[0]
                                 if sub_election_id_gen_id[1] != general_election_id:
                                     update_sub_election(conn, sub_election_id, general_election_id)                                
@@ -620,7 +620,7 @@ def scrape_headertabs(state_name, election_year, election_url, office):
                                 general_election_id = 0 
                             
                             sub_election_id_gen_id = get_sub_election_id(conn, state_name, office, sub_office, election_type, party,  str(primary_election_date_obj.date()))  
-                            if sub_election_id_gen_id[0] != 0:
+                            if sub_election_id_gen_id[0] != 0 and general_election_id != 0:
                                 sub_election_id = sub_election_id_gen_id[0]
                                 if sub_election_id_gen_id[1] != general_election_id:
                                     update_sub_election(conn, sub_election_id, general_election_id)                                
@@ -824,7 +824,7 @@ def state_executive(all_state_executive_elections):
                                             election_date_str = '' 
 
                                         sub_election_id_gen_id = get_sub_election_id(conn, state_name_se, election_title, sub_office_name, election_type, party,  election_date_str)  
-                                        if sub_election_id_gen_id[0] != 0:
+                                        if sub_election_id_gen_id[0] != 0 and general_election_id != 0:
                                             sub_election_id = sub_election_id_gen_id[0]
                                             if sub_election_id_gen_id[1] != general_election_id:
                                                 update_sub_election(conn, sub_election_id, general_election_id) 
@@ -939,7 +939,7 @@ def state_executive(all_state_executive_elections):
                                         election_date_str = '' 
 
                                     sub_election_id_gen_id = get_sub_election_id(conn, state_name_se, election_title, sub_office_name, election_type, party,  election_date_str)  
-                                    if sub_election_id_gen_id[0] != 0:
+                                    if sub_election_id_gen_id[0] != 0 and general_election_id != 0:
                                         sub_election_id = sub_election_id_gen_id[0]
                                         if sub_election_id_gen_id[1] != general_election_id:
                                             update_sub_election(conn, sub_election_id, general_election_id) 
@@ -1232,7 +1232,7 @@ def scrape_voteboxes(state_name, election_year, voteboxes, office='',sub_office=
                     logging.info(f"Other Election: ,general_election_id = {general_election_id}, state_name={state_name}, office={office}, sub_office={sub_office}, election_type={election_type}, party= {party}, election_name={election_name}, election_date={str(election_date_object.date())}")
 
                     sub_election_id_gen_id = get_sub_election_id(conn, state_name, office, sub_office, election_type, party,  str(election_date_object.date()))  
-                    if sub_election_id_gen_id[0] != 0:
+                    if sub_election_id_gen_id[0] != 0 and general_election_id != 0:
                         sub_election_id = sub_election_id_gen_id[0]
                         if sub_election_id_gen_id[1] != general_election_id:
                             update_sub_election(conn, sub_election_id, general_election_id) 
